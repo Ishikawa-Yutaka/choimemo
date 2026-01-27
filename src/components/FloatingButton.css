@@ -1,0 +1,78 @@
+/**
+ * フローティングボタンのスタイル
+ * デザイン: 右下固定、白い丸ボタン、グレーの枠線
+ */
+
+.floating-button {
+  /* 画面に固定 */
+  position: fixed;
+  bottom: 24px; /* 下から24pxの位置 */
+  right: 24px; /* 右から24pxの位置 */
+
+  /* ボタンのサイズ */
+  width: 56px;
+  height: 56px;
+
+  /* 丸くする */
+  border-radius: 50%; /* 50%で完全な円になる */
+
+  /* 背景と枠線 */
+  background-color: #ffffff;
+  border: 2px solid #ddd;
+
+  /* 影をつけて浮いている感じを出す */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  /* ボタンとしてのスタイル */
+  cursor: pointer;
+
+  /* 中身を中央揃え */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* アニメーション */
+  transition: all 0.3s ease;
+
+  /* 他の要素より前面に表示 */
+  z-index: 100;
+}
+
+/* ボタンがホバーされた時 */
+.floating-button:hover {
+  /* 少し大きくする */
+  transform: scale(1.1);
+
+  /* 影を濃くする */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ボタンが押された時 */
+.floating-button:active {
+  /* 少し小さくする（押された感じ） */
+  transform: scale(0.95);
+}
+
+/* プラスアイコンのスタイル */
+.floating-button-icon {
+  font-size: 28px; /* react-iconsのサイズ */
+  color: #666;
+  line-height: 1;
+
+  /* アイコンの位置を微調整 */
+  display: block;
+}
+
+/* モバイル対応: 小さい画面では少し小さめにする */
+@media screen and (max-width: 480px) {
+  .floating-button {
+    width: 48px;
+    height: 48px;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .floating-button-icon {
+    font-size: 28px;
+  }
+}

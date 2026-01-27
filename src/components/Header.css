@@ -1,0 +1,67 @@
+/**
+ * ヘッダーのスタイル
+ * デザイン: 黄色背景、左右に要素を配置
+ */
+
+.header {
+  /* 背景色: 黄色（デザインに合わせた色） */
+  background-color: #f4e6b8;
+
+  /* Flexboxで左右に要素を配置 */
+  display: flex;
+  justify-content: space-between; /* 左右に分ける */
+  align-items: center; /* 縦方向で中央揃え */
+
+  /* 余白 */
+  padding: 12px 16px;
+
+  /* 影をつけて立体感を出す */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* アプリ名のスタイル */
+.header-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: #333;
+}
+
+/* 右側のボタン群のコンテナ */
+.header-actions {
+  display: flex;
+  gap: 12px; /* ボタン間の隙間 */
+}
+
+/* ヘッダーボタン（ゴミ箱、メニュー）の共通スタイル */
+.header-button {
+  /* ボタンの基本スタイルをリセット */
+  background: none;
+  border: none;
+  cursor: pointer; /* ホバー時にポインターカーソルを表示 */
+
+  /* アイコンサイズを26pxに設定 */
+  font-size: 26px;
+  padding: 4px;
+
+  /* アイコンを中央に配置 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* タップ時の反応 */
+  transition: opacity 0.2s;
+
+  /* アイコンの色 */
+  color: #333;
+}
+
+/* ボタンがホバー（マウスオーバー）された時 */
+.header-button:hover {
+  opacity: 0.7; /* 少し透明にして反応を示す */
+}
+
+/* ボタンが押された時 */
+.header-button:active {
+  opacity: 0.5; /* さらに透明にする */
+}

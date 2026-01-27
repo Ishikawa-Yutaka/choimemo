@@ -1,0 +1,21 @@
+/**
+ * アプリ全体のレイアウトスタイル
+ * モバイルファーストでレスポンシブ対応
+ * すべてのデバイスで画面全体を使用（max-widthなし）
+ */
+
+.app {
+  /* 画面全体を使う */
+  width: 100%;
+  height: 100vh; /* vh = viewport height（画面の高さ） */
+
+  /* Flexboxで縦方向に配置 */
+  display: flex;
+  flex-direction: column; /* 上から下に並べる */
+
+  /* スクロールバーを非表示（見た目をすっきりさせる） */
+  overflow: hidden;
+
+  /* 背景色を設定 */
+  background-color: #ffffff;
+}

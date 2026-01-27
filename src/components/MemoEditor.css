@@ -1,0 +1,71 @@
+/**
+ * メモエディターのスタイル
+ * デザイン: 白背景、右上に日付、広い入力エリア
+ */
+
+.memo-editor {
+  /* 画面いっぱいに広げる（ヘッダー分を除く） */
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* 縦方向に並べる */
+
+  /* 背景色 */
+  background-color: #ffffff;
+
+  /* 内側の余白 */
+  padding: 16px;
+}
+
+/* 日付表示のスタイル */
+.memo-date {
+  /* 右寄せ */
+  text-align: right;
+
+  /* 文字スタイル */
+  font-size: 14px;
+  color: #999; /* グレー */
+
+  /* 下に少し隙間 */
+  margin-bottom: 12px;
+}
+
+/* メモ入力エリアのスタイル */
+.memo-textarea {
+  /* 残りの高さ全体を使う */
+  flex: 1;
+
+  /* ボーダーなし */
+  border: none;
+  outline: none; /* フォーカス時の枠線も消す */
+
+  /* 文字スタイル */
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.6; /* 行間を広めに */
+  color: #333;
+
+  /* 内側の余白 */
+  padding: 0;
+
+  /* リサイズハンドルを非表示 */
+  resize: none;
+}
+
+/* プレースホルダーのスタイル */
+.memo-textarea::placeholder {
+  color: #ccc; /* 薄いグレー */
+}
+
+/* スマホでのタップ時のハイライトを無効化 */
+.memo-textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* モバイルデバイスでのフォントサイズ自動拡大を防止 */
+@media screen and (max-width: 768px) {
+  .memo-textarea {
+    font-size: 16px; /* 16px以上でズームが発生しない */
+  }
+}
