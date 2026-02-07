@@ -28,17 +28,39 @@ npm run preview
 
 ## Firebase設定
 
-1. Firebaseコンソールでプロジェクトを作成
-2. `.env.local`ファイルを作成し、Firebase設定を追加:
+### プロジェクト情報
 
-```
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
+- **プロジェクトID**: choimemo
+- **リージョン**: asia-northeast2 (Osaka)
+- **設定完了日**: 2026-02-07
+
+### 有効化済みサービス
+
+- ✅ **Authentication**: メール/パスワード認証
+- ✅ **Firestore Database**: ロケーション asia-northeast2
+- ⏭️ **Storage**: Phase 2で設定予定（画像添付機能実装時）
+
+### ローカル開発環境のセットアップ
+
+1. `.env.local.example`を`.env.local`にコピー:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. `.env.local`にFirebaseコンソールから取得した設定値を記入:
+   ```
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   ```
+
+3. 開発サーバーを再起動:
+   ```bash
+   npm run dev
+   ```
 
 ## プロジェクト構造
 
