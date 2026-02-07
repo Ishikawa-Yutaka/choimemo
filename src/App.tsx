@@ -13,6 +13,9 @@ import MemoEditor from './components/MemoEditor'
 import FloatingButton from './components/FloatingButton'
 import './App.css'
 
+// Firebase SDK を初期化（インポートするだけで初期化される）
+import './lib/firebase'
+
 function App() {
   // メモの内容を管理するState
   // useState: Reactでデータを保持するための機能
