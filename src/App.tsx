@@ -12,6 +12,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import MemoPage from './pages/MemoPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Firebase SDK を初期化（インポートするだけで初期化される）
 import './lib/firebase'
@@ -41,8 +42,15 @@ const App: React.FC = () => {
         {/* ログインページ */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* メインのメモ編集ページ */}
-        <Route path="/" element={<MemoPage />} />
+        {/* メインのメモ編集ページ（ログイン必須） */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <MemoPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* 定義されていないURLにアクセスされた場合はトップページにリダイレクト */}
         <Route path="*" element={<Navigate to="/" replace />} />
