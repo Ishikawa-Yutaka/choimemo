@@ -1,86 +1,53 @@
 /**
  * アプリのメインコンポーネント
  *
- * このコンポーネントがアプリ全体の構造を管理します
- * - ヘッダー（上部）
- * - メモエディター（中央）
- * - フローティングボタン（右下）
+ * このコンポーネントがアプリ全体のルーティング（画面遷移）を管理します。
+ * - /signup : アカウント作成ページ
+ * - /login  : ログインページ
+ * - /       : メモ編集ページ（メイン画面）
  */
 
-import { useState } from 'react'
-import Header from './components/Header'
-import MemoEditor from './components/MemoEditor'
-import FloatingButton from './components/FloatingButton'
-import './App.css'
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import SignupPage from './pages/SignupPage'
+import LoginPage from './pages/LoginPage'
+import MemoPage from './pages/MemoPage'
 
 // Firebase SDK を初期化（インポートするだけで初期化される）
 import './lib/firebase'
 
-function App() {
-  // メモの内容を管理するState
-  // useState: Reactでデータを保持するための機能
-  const [memoContent, setMemoContent] = useState('')
-
-  /**
-   * 現在の日付を "YYYY/MM/DD" 形式で取得する関数
-   * @returns フォーマットされた日付文字列（例: "2026/01/25"）
-   */
-  const getCurrentDate = () => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0') // 月は0始まりなので+1
-    const day = String(now.getDate()).padStart(2, '0')
-    return `${year}/${month}/${day}`
-  }
-
-  /**
-   * メモの内容が変更された時の処理
-   * @param newContent - 新しいメモの内容
-   */
-  const handleMemoChange = (newContent: string) => {
-    setMemoContent(newContent)
-    // TODO: ここで自動保存処理を実装する予定（デバウンス処理）
-  }
-
-  /**
-   * ゴミ箱ボタンがクリックされた時の処理
-   */
-  const handleDelete = () => {
-    // TODO: メモ削除の確認ダイアログを表示
-    console.log('削除ボタンがクリックされました')
-  }
-
-  /**
-   * メニューボタンがクリックされた時の処理
-   */
-  const handleMenuClick = () => {
-    // TODO: メニューを表示（ログアウトなど）
-    console.log('メニューボタンがクリックされました')
-  }
-
-  /**
-   * 新規メモボタンがクリックされた時の処理
-   */
-  const handleNewMemo = () => {
-    // TODO: 新しいメモを作成
-    console.log('新規メモボタンがクリックされました')
-  }
-
+/**
+ * アプリ全体のルーティングを定義するコンポーネント
+ *
+ * @returns ルーティング設定済みのアプリ全体のJSX要素
+ *
+ * 使用例:
+ * ```tsx
+ * // main.tsx からは <App /> をそのままレンダリングするだけでOK
+ * ReactDOM.createRoot(root).render(
+ *   <React.StrictMode>
+ *     <App />
+ *   </React.StrictMode>,
+ * )
+ * ```
+ */
+const App: React.FC = () => {
   return (
-    <div className="app">
-      {/* ヘッダー */}
-      <Header onDelete={handleDelete} onMenuClick={handleMenuClick} />
+    <BrowserRouter>
+      <Routes>
+        {/* アカウント作成ページ */}
+        <Route path="/signup" element={<SignupPage />} />
 
-      {/* メモエディター */}
-      <MemoEditor
-        content={memoContent}
-        date={getCurrentDate()}
-        onChange={handleMemoChange}
-      />
+        {/* ログインページ */}
+        <Route path="/login" element={<LoginPage />} />
 
-      {/* フローティング追加ボタン */}
-      <FloatingButton onClick={handleNewMemo} />
-    </div>
+        {/* メインのメモ編集ページ */}
+        <Route path="/" element={<MemoPage />} />
+
+        {/* 定義されていないURLにアクセスされた場合はトップページにリダイレクト */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
