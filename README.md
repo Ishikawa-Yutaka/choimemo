@@ -76,14 +76,23 @@ npm run preview
 
 **比較**: Firebase Hostingも候補でしたが、Supabase移行後に別のホスティングサービスへ再移行が必要になるため、長期的な観点からVercelを選択しました。
 
-### デプロイ手順
+### デプロイ状況
 
-1. **Vercelアカウント作成** (https://vercel.com)
-2. **GitHubリポジトリと連携**
-3. **環境変数を設定** (Firebase設定値)
-4. **自動デプロイ** - mainブランチへのpushで自動的にデプロイ
+✅ **本番環境デプロイ済み**
 
-詳細な手順は後日追記予定。
+- **URL**: https://choimemo.vercel.app （実際のURLに置き換え）
+- **デプロイ日**: 2026-02-13
+- **自動デプロイ**: mainブランチへのpush時に自動デプロイ
+
+### Firestore Security Rules
+
+✅ **セキュリティルールデプロイ済み**
+
+- ログインしたユーザーは自分のメモだけアクセス可能
+- 未ログインユーザーはデータにアクセス不可
+- メモの文字数制限: 10,000文字
+
+詳細は `doc/firestore-security-rules-deployment.md` を参照。
 
 ## プロジェクト構造
 

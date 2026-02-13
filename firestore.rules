@@ -1,42 +1,28 @@
-// Firestore Security Rules
-// このファイルでFirestoreデータベースのアクセス制御を定義します
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * ユーザーのメモコレクションに対するルール
-     *
-     * パス: users/{userId}/memos/{memoId}
-     *
-     * アクセス制御:
-     * - 読み取り: ログイン中 かつ 自分のUID
-     * - 作成: ログイン中 かつ 自分のUID
-     * - 更新: ログイン中 かつ 自分のUID
-     * - 削除: ログイン中 かつ 自分のUID
-     */
+    // ユーザーのメモコレクションへのアクセス制御
+    // ログインしたユーザーは自分のメモだけ読み書き可能
     match /users/{userId}/memos/{memoId} {
-      // ユーザーが認証されていて、かつ自分のUIDと一致する場合のみアクセス可能
+      // ログインしている かつ 自分のデータの場合のみ許可
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // 作成時のバリデーション
+      // メモ作成時のバリデーション
       allow create: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.content is string
-                    && request.resource.data.content.size() <= 10000; // 最大10,000文字
+                    && request.resource.data.content.size() <= 10000;
 
-      // 更新時のバリデーション
+      // メモ更新時のバリデーション
       allow update: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.content is string
-                    && request.resource.data.content.size() <= 10000; // 最大10,000文字
+                    && request.resource.data.content.size() <= 10000;
     }
 
-    /**
-     * その他のすべてのドキュメントへのアクセスを拒否
-     */
+    // その他すべてのパスへのアクセスを拒否
     match /{document=**} {
       allow read, write: if false;
     }
