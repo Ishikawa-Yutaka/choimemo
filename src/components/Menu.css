@@ -1,0 +1,156 @@
+/**
+ * メニューコンポーネントのスタイル
+ */
+
+/* 背景オーバーレイ（メニュー表示中に画面全体を暗くする） */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* メニュー本体 */
+.menu-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  max-width: 80vw;
+  background-color: white;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease-in-out;
+}
+
+/* メニューヘッダー */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #facc15;
+}
+
+.menu-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.menu-close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #222;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.menu-close-button:hover {
+  opacity: 0.7;
+}
+
+/* メニュー項目リスト */
+.menu-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* 各メニュー項目 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  text-align: left;
+  transition: background-color 0.2s;
+  color: #222;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* ログアウトボタン（危険な操作なので赤色） */
+.menu-item-danger {
+  color: #d32f2f;
+}
+
+.menu-item-danger:hover {
+  background-color: #ffebee;
+}
+
+/* メニュー項目のアイコン */
+.menu-item-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  display: inline-block;
+  width: 24px;
+  text-align: center;
+}
+
+/* メニュー項目のテキスト */
+.menu-item-text {
+  flex: 1;
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 右からスライドインアニメーション */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ダークモード用のスタイル */
+@media (prefers-color-scheme: dark) {
+  .menu-container {
+    background-color: #1e1e1e;
+  }
+
+  .menu-title,
+  .menu-close-button,
+  .menu-item {
+    color: #ffffff;
+  }
+
+  .menu-header {
+    border-bottom-color: #333;
+  }
+
+  .menu-item:hover {
+    background-color: #2a2a2a;
+  }
+
+  .menu-item-danger:hover {
+    background-color: #3a1f1f;
+  }
+}

@@ -1,0 +1,211 @@
+/**
+ * メモ一覧コンポーネントのスタイル
+ */
+
+/* 背景オーバーレイ（メモ一覧表示中に画面全体を暗くする） */
+.memo-list-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* メモ一覧本体 */
+.memo-list-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  animation: slideInUp 0.3s ease-in-out;
+}
+
+/* メモ一覧ヘッダー */
+.memo-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #facc15;
+}
+
+.memo-list-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.memo-list-close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #222;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.memo-list-close-button:hover {
+  opacity: 0.7;
+}
+
+/* メモ一覧のコンテンツエリア */
+.memo-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* メモが空の場合の表示 */
+.memo-list-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* メモアイテムラッパー（メモ本体と削除ボタンを並べる） */
+.memo-list-item-wrapper {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* メモアイテム */
+.memo-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+  color: #222;
+}
+
+.memo-list-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* メモアイテムの削除ボタン */
+.memo-list-item-delete {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  margin-right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s;
+  border-radius: 4px;
+}
+
+.memo-list-item-delete:hover {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+/* メモのプレビューテキスト */
+.memo-list-item-preview {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* メモの更新日時 */
+.memo-list-item-date {
+  font-size: 12px;
+  color: #999;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+/* 「さらに見る」ボタン */
+.memo-list-show-more {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 16px 20px;
+  padding: 12px;
+  background-color: #facc15;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+  transition: background-color 0.2s;
+}
+
+.memo-list-show-more:hover {
+  background-color: #fbbf24;
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 下からスライドインアニメーション */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ダークモード用のスタイル */
+@media (prefers-color-scheme: dark) {
+  .memo-list-container {
+    background-color: #1e1e1e;
+  }
+
+  .memo-list-title,
+  .memo-list-close-button,
+  .memo-list-item-preview {
+    color: #ffffff;
+  }
+
+  .memo-list-header {
+    border-bottom-color: #333;
+  }
+
+  .memo-list-item {
+    border-bottom-color: #333;
+  }
+
+  .memo-list-item:hover {
+    background-color: #2a2a2a;
+  }
+}
