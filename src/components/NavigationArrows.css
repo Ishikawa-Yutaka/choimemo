@@ -1,0 +1,106 @@
+/**
+ * ナビゲーション矢印コンポーネントのスタイル
+ */
+
+/* 矢印ボタン共通スタイル */
+.nav-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background-color: rgba(250, 204, 21, 0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
+  z-index: 100;
+}
+
+/* PC（タッチデバイス以外）でのみ表示 */
+@media (hover: hover) and (pointer: fine) {
+  .nav-arrow {
+    display: flex;
+  }
+}
+
+/* タッチデバイスでは非表示 */
+@media (hover: none) or (pointer: coarse) {
+  .nav-arrow {
+    display: none;
+  }
+}
+
+.nav-arrow:hover:not(:disabled) {
+  background-color: rgba(251, 191, 36, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-arrow:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* 左矢印の位置 */
+.nav-arrow-left {
+  left: 16px;
+}
+
+/* 右矢印の位置 */
+.nav-arrow-right {
+  right: 16px;
+}
+
+/* 無効化された矢印 */
+.nav-arrow-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background-color: rgba(200, 200, 200, 0.5);
+}
+
+.nav-arrow-disabled:hover {
+  background-color: rgba(200, 200, 200, 0.5);
+  transform: translateY(-50%) scale(1);
+}
+
+/* タブレット・小さいPC画面用 */
+@media (max-width: 768px) {
+  .nav-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .nav-arrow-left {
+    left: 8px;
+  }
+
+  .nav-arrow-right {
+    right: 8px;
+  }
+}
+
+/* ダークモード用のスタイル */
+@media (prefers-color-scheme: dark) {
+  .nav-arrow {
+    background-color: rgba(250, 204, 21, 0.8);
+    color: #111;
+  }
+
+  .nav-arrow:hover:not(:disabled) {
+    background-color: rgba(251, 191, 36, 0.9);
+  }
+
+  .nav-arrow-disabled {
+    background-color: rgba(100, 100, 100, 0.5);
+  }
+
+  .nav-arrow-disabled:hover {
+    background-color: rgba(100, 100, 100, 0.5);
+  }
+}

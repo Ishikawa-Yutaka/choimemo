@@ -43,7 +43,7 @@ const convertTimestampToDate = (timestamp: Timestamp): Date => {
  * ユーザーの全メモを取得する関数
  *
  * @param userId - メモを取得したいユーザーのID
- * @returns メモの配列（作成日時が新しい順にソート）
+ * @returns メモの配列（更新日時が新しい順にソート、編集したメモが一番上に来る）
  *
  * 使用例:
  * ```typescript
@@ -57,8 +57,8 @@ export async function getMemos(userId: string): Promise<Memo[]> {
     // users/{userId}/memos というパスのコレクションを指定
     const memosRef = collection(db, `users/${userId}/memos`)
 
-    // クエリを作成（created_atで降順ソート = 新しいメモが先）
-    const q = query(memosRef, orderBy('created_at', 'desc'))
+    // クエリを作成（updated_atで降順ソート = 最近編集・作成されたメモが先）
+    const q = query(memosRef, orderBy('updated_at', 'desc'))
 
     // データを取得
     const snapshot = await getDocs(q)

@@ -18,4 +18,83 @@
 
   /* 背景色を設定 */
   background-color: #ffffff;
+
+  /* スワイプ時のユーザー選択を無効化（見た目の改善） */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* メモコンテナ */
+.memo-container {
+  flex: 1;
+}
+
+/* スワイプ方向インジケーター（矢印アニメーション） */
+.swipe-arrow-indicator {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 80px;
+  color: rgba(250, 204, 21, 0.8);
+  pointer-events: none; /* クリックを無効化 */
+  z-index: 1000;
+  display: none; /* デフォルトは非表示 */
+}
+
+/* タッチデバイスでのみ表示 */
+@media (hover: none) or (pointer: coarse) {
+  .swipe-arrow-indicator {
+    display: block;
+  }
+}
+
+/* PCでは非表示 */
+@media (hover: hover) and (pointer: fine) {
+  .swipe-arrow-indicator {
+    display: none;
+  }
+}
+
+/* 左側に表示される矢印（左スワイプ時） */
+.swipe-arrow-indicator-left {
+  left: 30px;
+  animation: arrowFadeInOutLeft 0.6s ease-out;
+}
+
+/* 右側に表示される矢印（右スワイプ時） */
+.swipe-arrow-indicator-right {
+  right: 30px;
+  animation: arrowFadeInOutRight 0.6s ease-out;
+}
+
+/* 左側の矢印のアニメーション */
+@keyframes arrowFadeInOutLeft {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-20px) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+}
+
+/* 右側の矢印のアニメーション */
+@keyframes arrowFadeInOutRight {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(20px) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
 }

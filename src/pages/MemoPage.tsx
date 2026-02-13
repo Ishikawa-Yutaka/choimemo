@@ -14,8 +14,10 @@ import MemoEditor from '../components/MemoEditor'
 import FloatingButton from '../components/FloatingButton'
 import Menu from '../components/Menu'
 import MemoList from '../components/MemoList'
-import { useAuth } from '../hooks/useAuth'
+import NavigationArrows from '../components/NavigationArrows'
+import { useAuth } from '../contexts/AuthContext'
 import { useMemoOperations } from '../hooks/useMemoOperations'
+import { useSwipeNavigation } from '../hooks/useSwipeNavigation'
 import {
   getMemos,
   createMemo,
@@ -25,6 +27,7 @@ import type { Memo } from '../lib/database'
 import { signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useNavigate } from 'react-router-dom'
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import '../App.css'
 
 /**
@@ -58,6 +61,10 @@ const MemoPage: React.FC = () => {
   // 現在表示中のメモのインデックス（memos配列の何番目か）
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // スワイプ方向インジケーター（'left' | 'right' | null）
+  // スワイプ時に表示される矢印の方向を管理
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
+
   // データ読み込み中かどうか
   const [loading, setLoading] = useState(true)
 
@@ -81,14 +88,6 @@ const MemoPage: React.FC = () => {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   /**
-   * スワイプ操作の開始位置（X座標）を保持
-   *
-   * タッチ開始時のX座標を記録し、タッチ終了時の座標と比較することで
-   * 左右どちらにスワイプしたかを判定します。
-   */
-  const touchStartXRef = useRef<number>(0)
-
-  /**
    * メモ操作のカスタムフック
    * メモの削除・作成処理をまとめたフック
    */
@@ -98,6 +97,39 @@ const MemoPage: React.FC = () => {
     setMemos,
     currentIndex,
     setCurrentIndex,
+  })
+
+  /**
+   * インデックスが変更された時のハンドラー（矢印アニメーション付き）
+   */
+  const handleIndexChange = (newIndex: number) => {
+    // スワイプ方向を設定（表示位置の管理）
+    // 左スワイプ（次のメモへ）→ 右側に表示
+    // 右スワイプ（前のメモへ）→ 左側に表示
+    if (newIndex > currentIndex) {
+      setSwipeDirection('right') // 次のメモへ（右側に表示）
+    } else if (newIndex < currentIndex) {
+      setSwipeDirection('left') // 前のメモへ（左側に表示）
+    }
+
+    // インデックスを更新
+    setCurrentIndex(newIndex)
+
+    // アニメーション後にスワイプ方向をリセット
+    setTimeout(() => {
+      setSwipeDirection(null)
+    }, 600) // CSSのアニメーション時間（0.6s）と合わせる
+  }
+
+  /**
+   * スワイプナビゲーションのカスタムフック
+   * タッチスワイプ、マウスドラッグ、キーボード操作をまとめたフック
+   */
+  const swipeHandlers = useSwipeNavigation({
+    currentIndex,
+    totalCount: memos.length,
+    onIndexChange: handleIndexChange,
+    disabled: isMenuOpen || isMemoListOpen,
   })
 
   /**
@@ -305,52 +337,6 @@ const MemoPage: React.FC = () => {
     await createNewMemo()
   }
 
-  /**
-   * タッチ開始時の処理
-   *
-   * @param event - タッチイベント
-   *
-   * スマホの画面にタッチした瞬間に呼ばれます。
-   * タッチ開始位置のX座標を記録しておきます。
-   */
-  const handleTouchStart = (event: React.TouchEvent) => {
-    // event.touches[0] = 最初の指のタッチ情報
-    // clientX = 画面左端からの横方向の距離（px）
-    touchStartXRef.current = event.touches[0].clientX
-  }
-
-  /**
-   * タッチ終了時の処理（スワイプ判定）
-   *
-   * @param event - タッチイベント
-   *
-   * 指を離した時に呼ばれます。
-   * タッチ開始位置と終了位置を比較して、スワイプ方向を判定します。
-   */
-  const handleTouchEnd = (event: React.TouchEvent) => {
-    // event.changedTouches[0] = 離された指のタッチ情報
-    const touchEndX = event.changedTouches[0].clientX
-
-    // スワイプ距離を計算（正の数 = 右スワイプ、負の数 = 左スワイプ）
-    const diffX = touchEndX - touchStartXRef.current
-
-    // 最低でも50px以上移動していないとスワイプとして認識しない
-    // （誤動作を防ぐため）
-    const minSwipeDistance = 50
-
-    if (diffX > minSwipeDistance) {
-      // 右スワイプ → 前のメモへ
-      if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1)
-      }
-    } else if (diffX < -minSwipeDistance) {
-      // 左スワイプ → 次のメモへ
-      if (currentIndex < memos.length - 1) {
-        setCurrentIndex(currentIndex + 1)
-      }
-    }
-  }
-
   // データ読み込み中は「読み込み中」を表示
   if (loading) {
     return (
@@ -387,24 +373,52 @@ const MemoPage: React.FC = () => {
     )
   }
 
+  // DOMイベントハンドラーだけを抽出
+  // goToPrevious, goToNext, canGoPrevious, canGoNext はNavigationArrowsに渡す
+  const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp, onMouseLeave } = swipeHandlers
+
   return (
     <div
       className="app"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
     >
       {/* ヘッダー */}
       <Header onDelete={handleDelete} onMenuClick={handleMenuClick} />
 
       {/* メモエディター */}
-      <MemoEditor
-        content={currentMemo.content}
-        date={getCurrentDate()}
-        onChange={handleMemoChange}
-      />
+      <div className="memo-container">
+        <MemoEditor
+          content={currentMemo.content}
+          date={getCurrentDate()}
+          onChange={handleMemoChange}
+        />
+      </div>
+
+      {/* スワイプ方向インジケーター（矢印アニメーション） */}
+      {swipeDirection && (
+        <div
+          className={`swipe-arrow-indicator swipe-arrow-indicator-${swipeDirection}`}
+        >
+          {swipeDirection === 'right' ? <HiChevronRight /> : <HiChevronLeft />}
+        </div>
+      )}
 
       {/* フローティング追加ボタン */}
       <FloatingButton onClick={handleNewMemo} />
+
+      {/* ナビゲーション矢印（PC用、複数メモがある場合のみ） */}
+      {memos.length > 1 && (
+        <NavigationArrows
+          onPrevious={swipeHandlers.goToPrevious}
+          onNext={swipeHandlers.goToNext}
+          canGoPrevious={swipeHandlers.canGoPrevious}
+          canGoNext={swipeHandlers.canGoNext}
+        />
+      )}
 
       {/* メニュー（isMenuOpenがtrueの時のみ表示） */}
       {isMenuOpen && (
