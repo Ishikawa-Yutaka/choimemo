@@ -70,12 +70,6 @@ export function useMemoOperations({
     const memoToDelete = memos[index]
     if (!memoToDelete) return false
 
-    // 確認ダイアログを表示（skipConfirmがtrueの場合はスキップ）
-    if (!skipConfirm) {
-      const confirmed = window.confirm('このメモを削除しますか？')
-      if (!confirmed) return false
-    }
-
     setIsOperating(true)
 
     try {

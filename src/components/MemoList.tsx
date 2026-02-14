@@ -105,10 +105,6 @@ const MemoList: React.FC<MemoListProps> = ({
     // イベントの伝播を止める（メモ自体のクリックイベントが発火しないようにする）
     event.stopPropagation()
 
-    // 削除の確認ダイアログを表示
-    const confirmed = window.confirm('このメモを削除しますか？')
-    if (!confirmed) return
-
     // 親コンポーネントの削除処理を呼び出す
     onMemoDelete(index)
   }

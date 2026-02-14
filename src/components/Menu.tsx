@@ -8,6 +8,13 @@
  */
 
 import React from 'react'
+import {
+  HiOutlineXMark,
+  HiOutlineDocumentText,
+  HiOutlineMoon,
+  HiOutlineSun,
+  HiOutlineArrowRightOnRectangle,
+} from 'react-icons/hi2'
 import './Menu.css'
 
 /**
@@ -49,21 +56,23 @@ const Menu: React.FC<MenuProps> = ({
         <div className="menu-header">
           <h2 className="menu-title">メニュー</h2>
           <button className="menu-close-button" onClick={onClose}>
-            ✕
+            <HiOutlineXMark />
           </button>
         </div>
 
         <div className="menu-items">
           {/* メモ一覧リンク */}
           <button className="menu-item" onClick={onMemoList}>
-            <span className="menu-item-icon">📝</span>
+            <span className="menu-item-icon">
+              <HiOutlineDocumentText />
+            </span>
             <span className="menu-item-text">メモ一覧</span>
           </button>
 
           {/* ダークモード切り替え */}
           <button className="menu-item" onClick={onToggleTheme}>
             <span className="menu-item-icon">
-              {currentTheme === 'light' ? '🌙' : '☀️'}
+              {currentTheme === 'light' ? <HiOutlineMoon /> : <HiOutlineSun />}
             </span>
             <span className="menu-item-text">
               {currentTheme === 'light'
@@ -74,7 +83,9 @@ const Menu: React.FC<MenuProps> = ({
 
           {/* ログアウトボタン */}
           <button className="menu-item menu-item-danger" onClick={onLogout}>
-            <span className="menu-item-icon">🚪</span>
+            <span className="menu-item-icon">
+              <HiOutlineArrowRightOnRectangle />
+            </span>
             <span className="menu-item-text">ログアウト</span>
           </button>
         </div>

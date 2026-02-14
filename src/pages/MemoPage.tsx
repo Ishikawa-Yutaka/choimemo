@@ -160,8 +160,30 @@ const MemoPage: React.FC = () => {
             },
           ])
         } else {
-          // 取得したメモをStateに保存
-          setMemos(fetchedMemos)
+          // 一番新しいメモ（配列の先頭）を取得
+          const latestMemo = fetchedMemos[0]
+
+          // 一番新しいメモが空でない場合、新しい空メモを作成
+          if (latestMemo.content.trim() !== '') {
+            // Firestoreに新しい空メモを作成
+            const newMemoId = await createMemo(user.uid, {
+              content: '',
+            })
+
+            // 新しい空メモを一番上に追加
+            setMemos([
+              {
+                id: newMemoId,
+                content: '',
+                created_at: new Date(),
+                updated_at: new Date(),
+              },
+              ...fetchedMemos,
+            ])
+          } else {
+            // 一番新しいメモが既に空の場合は、そのまま使う
+            setMemos(fetchedMemos)
+          }
         }
       } catch (error) {
         console.error('メモの読み込みに失敗しました:', error)
@@ -238,15 +260,6 @@ const MemoPage: React.FC = () => {
   }
 
   /**
-   * ゴミ箱ボタン（メイン画面）がクリックされた時の処理
-   */
-  const handleDelete = async () => {
-    if (!currentMemo) return
-    // 現在表示中のメモを削除（カスタムフックの関数を使用）
-    await deleteMemoByIndex(currentIndex)
-  }
-
-  /**
    * メニューボタンがクリックされた時の処理
    */
   const handleMenuClick = () => {
@@ -307,16 +320,6 @@ const MemoPage: React.FC = () => {
     setCurrentIndex(index)
     // メモ一覧を閉じる
     setIsMemoListOpen(false)
-  }
-
-  /**
-   * メモ一覧でメモが削除された時の処理
-   *
-   * @param index - 削除するメモのインデックス
-   */
-  const handleMemoListItemDelete = async (index: number) => {
-    // メモを削除（カスタムフックの関数を使用）
-    await deleteMemoByIndex(index)
   }
 
   /**
@@ -387,7 +390,10 @@ const MemoPage: React.FC = () => {
       onMouseLeave={onMouseLeave}
     >
       {/* ヘッダー */}
-      <Header onDelete={handleDelete} onMenuClick={handleMenuClick} />
+      <Header
+        onDelete={() => deleteMemoByIndex(currentIndex)}
+        onMenuClick={handleMenuClick}
+      />
 
       {/* メモエディター */}
       <div className="memo-container">
@@ -437,7 +443,7 @@ const MemoPage: React.FC = () => {
           memos={memos}
           onClose={handleMemoListClose}
           onMemoClick={handleMemoListItemClick}
-          onMemoDelete={handleMemoListItemDelete}
+          onMemoDelete={deleteMemoByIndex}
         />
       )}
     </div>
