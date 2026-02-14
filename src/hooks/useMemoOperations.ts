@@ -96,12 +96,8 @@ export function useMemoOperations({
         setCurrentIndex(0)
       } else {
         setMemos(newMemos)
-        // 現在表示中のメモを削除した場合、または現在のインデックスが範囲外の場合
-        if (currentIndex === index || currentIndex >= newMemos.length) {
-          setCurrentIndex(
-            Math.max(0, Math.min(currentIndex, newMemos.length - 1))
-          )
-        }
+        // メモ削除後は常に最初のメモ（インデックス0）を表示
+        setCurrentIndex(0)
       }
 
       return true

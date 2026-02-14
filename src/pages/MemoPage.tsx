@@ -22,9 +22,10 @@ import {
   getMemos,
   createMemo,
   updateMemo,
+  deleteMemo,
 } from '../lib/database'
 import type { Memo } from '../lib/database'
-import { signOut } from 'firebase/auth'
+import { signOut, deleteUser } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useNavigate } from 'react-router-dom'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
@@ -295,6 +296,58 @@ const MemoPage: React.FC = () => {
   }
 
   /**
+   * アカウント削除処理（クライアント側実装）
+   *
+   * 注: 将来的にはCloud Functionsで自動削除する予定
+   * 現在はBlazeプランが必要なため、クライアント側で実装
+   *
+   * TODO: Blazeプランにアップグレード後の対応
+   * 1. Cloud Functionsをデプロイ: firebase deploy --only functions
+   * 2. 以下のメモ削除処理を削除（Cloud Functionsが自動的に削除するため）
+   *    - getMemos(user.uid)
+   *    - Promise.all(...)
+   * 3. アカウント削除のみ残す: await deleteUser(user)
+   */
+  const handleDeleteAccount = async () => {
+    // アカウント削除の確認ダイアログを表示
+    const confirmed = window.confirm(
+      'アカウントを削除しますか？\n\nこの操作は取り消せません。すべてのメモが削除されます。'
+    )
+    if (!confirmed) return
+
+    try {
+      if (!user) return
+
+      // TODO: Blazeプランアップグレード後は、この処理を削除
+      // すべてのメモを取得
+      const allMemos = await getMemos(user.uid)
+
+      // すべてのメモを削除（並列処理で高速化）
+      await Promise.all(
+        allMemos.map(memo => deleteMemo(user.uid, memo.id))
+      )
+
+      // Firebase Authentication からアカウントを削除
+      await deleteUser(user)
+
+      // アカウント削除後はログイン画面にリダイレクト
+      navigate('/login', { replace: true })
+      alert('アカウントを削除しました。')
+    } catch (error: any) {
+      console.error('アカウント削除に失敗しました:', error)
+
+      // 再認証が必要な場合のエラーハンドリング
+      if (error.code === 'auth/requires-recent-login') {
+        alert(
+          'セキュリティのため、アカウント削除には再ログインが必要です。\n\n一度ログアウトして、再度ログインしてから削除してください。'
+        )
+      } else {
+        alert('アカウント削除に失敗しました。もう一度お試しください。')
+      }
+    }
+  }
+
+  /**
    * メモ一覧リンクがクリックされた時の処理
    */
   const handleMemoList = () => {
@@ -433,6 +486,7 @@ const MemoPage: React.FC = () => {
           onLogout={handleLogout}
           onMemoList={handleMemoList}
           onToggleTheme={handleToggleTheme}
+          onDeleteAccount={handleDeleteAccount}
           currentTheme={theme}
         />
       )}

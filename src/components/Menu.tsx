@@ -14,6 +14,7 @@ import {
   HiOutlineMoon,
   HiOutlineSun,
   HiOutlineArrowRightOnRectangle,
+  HiOutlineTrash,
 } from 'react-icons/hi2'
 import './Menu.css'
 
@@ -29,6 +30,8 @@ interface MenuProps {
   onMemoList: () => void
   /** ダークモード切り替えボタンがクリックされた時の処理 */
   onToggleTheme: () => void
+  /** アカウント削除ボタンがクリックされた時の処理 */
+  onDeleteAccount: () => void
   /** 現在のテーマ（'light' または 'dark'） */
   currentTheme: 'light' | 'dark'
 }
@@ -44,6 +47,7 @@ const Menu: React.FC<MenuProps> = ({
   onLogout,
   onMemoList,
   onToggleTheme,
+  onDeleteAccount,
   currentTheme,
 }) => {
   return (
@@ -82,11 +86,19 @@ const Menu: React.FC<MenuProps> = ({
           </button>
 
           {/* ログアウトボタン */}
-          <button className="menu-item menu-item-danger" onClick={onLogout}>
+          <button className="menu-item" onClick={onLogout}>
             <span className="menu-item-icon">
               <HiOutlineArrowRightOnRectangle />
             </span>
             <span className="menu-item-text">ログアウト</span>
+          </button>
+
+          {/* アカウント削除ボタン */}
+          <button className="menu-item menu-item-danger" onClick={onDeleteAccount}>
+            <span className="menu-item-icon">
+              <HiOutlineTrash />
+            </span>
+            <span className="menu-item-text">アカウント削除</span>
           </button>
         </div>
       </div>

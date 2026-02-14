@@ -94,6 +94,22 @@ npm run preview
 
 詳細は `doc/firestore-security-rules-deployment.md` を参照。
 
+### アカウント削除機能
+
+✅ **実装済み（クライアント側）**
+
+- メニューからアカウント削除が可能
+- アカウント削除時に、すべてのメモも削除される（クライアント側実装）
+- 削除確認ダイアログあり
+- セキュリティのため、最近ログインしていない場合は再ログインが必要
+
+**将来の予定（Blazeプランアップグレード後）**:
+- Cloud Functionsでサーバー側自動削除に移行
+- より確実なデータ削除（70-80% → 99.9%）
+- 準備済み: `functions/index.js` にCloud Functions実装済み
+
+詳細は `doc/firebase-cloud-functions-guide.md` を参照。
+
 ## プロジェクト構造
 
 ```
