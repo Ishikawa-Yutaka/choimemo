@@ -7,7 +7,7 @@
  */
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, User } from 'firebase/auth'
+import { onAuthStateChanged, reload, User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 
 /**
@@ -18,6 +18,16 @@ interface AuthContextType {
   user: User | null
   /** 認証状態の確認中かどうか */
   loading: boolean
+  /**
+   * ユーザー情報を最新状態に更新する関数
+   *
+   * reload() だけでは React の State が更新されないため、
+   * reload() 後にこの関数を呼ぶことで AuthContext の user を
+   * 最新状態に差し替え、再レンダリングをトリガーする。
+   *
+   * 使用場面: メール確認後に emailVerified を true に反映させるとき
+   */
+  refreshUser: () => Promise<void>
 }
 
 /**
@@ -86,8 +96,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => unsubscribe()
   }, []) // 空配列 = 初回レンダリング時のみ実行
 
+  /**
+   * ユーザー情報を最新状態に更新する関数
+   *
+   * reload() は Firebase サーバーから最新情報を取得するが、
+   * それだけでは React の State（user）は更新されない。
+   * reload() 後に setUser で新しいオブジェクトをセットすることで
+   * React が変化を検知し、ProtectedRoute などが再レンダリングされる。
+   */
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      // Firebase サーバーから最新の emailVerified などを取得
+      await reload(auth.currentUser)
+      // 同じユーザーでも新しいオブジェクト参照として setUser に渡すことで
+      // React が「変化した」と認識して再レンダリングされる
+      setUser({ ...auth.currentUser })
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

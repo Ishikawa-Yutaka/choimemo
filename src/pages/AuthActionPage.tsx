@@ -17,8 +17,9 @@
 
 import React, { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { applyActionCode, reload } from 'firebase/auth'
+import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
+import { useAuth } from '../contexts/AuthContext'
 
 /**
  * 処理の状態を表す型
@@ -38,6 +39,10 @@ const AuthActionPage: React.FC = () => {
   // URLのクエリパラメータを取得するフック
   // 例: ?mode=verifyEmail&oobCode=xxx から mode と oobCode を取得
   const [searchParams] = useSearchParams()
+
+  // AuthContext の refreshUser を取得
+  // reload() 後に React の State を更新するために使用
+  const { refreshUser } = useAuth()
 
   // 処理の状態を管理（loading → success または error）
   const [status, setStatus] = useState<Status>('loading')
@@ -78,17 +83,13 @@ const AuthActionPage: React.FC = () => {
           await applyActionCode(auth, oobCode)
 
           /**
-           * reload() : ローカルの currentUser を最新状態に更新
+           * refreshUser() : Firebase から最新情報を取得し React の State も更新
            *
-           * applyActionCode() だけでは、ブラウザが持っている
-           * auth.currentUser の emailVerified はまだ false のまま。
-           * reload() を呼ぶことで Firebase サーバーから最新情報を取得し、
-           * emailVerified が true に更新される。
-           * これにより「ちょいMEMOを始める」→ / へ遷移できる。
+           * applyActionCode() だけでは emailVerified はまだ false のまま。
+           * refreshUser() は reload() + setUser() を行うことで、
+           * ProtectedRoute が emailVerified: true を認識できるようになる。
            */
-          if (auth.currentUser) {
-            await reload(auth.currentUser)
-          }
+          await refreshUser()
 
           setStatus('success')
         } else {
@@ -115,7 +116,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams]) // searchParams が変わった時だけ実行
+  }, [searchParams, refreshUser]) // searchParams または refreshUser が変わった時に実行
 
   // 処理中の表示
   if (status === 'loading') {
