@@ -25,7 +25,7 @@ import {
   updateMemo,
   deleteMemo,
 } from '../lib/database'
-import type { Memo } from '../lib/database'
+import type { Memo } from '../types'
 import { signOut, deleteUser } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useNavigate } from 'react-router-dom'

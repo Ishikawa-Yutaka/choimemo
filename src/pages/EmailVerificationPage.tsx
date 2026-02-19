@@ -6,13 +6,12 @@
  *
  * 機能:
  * - 確認メールの再送信（再送ボタン）
- * - 確認完了チェック（「確認しました」ボタン）
  * - ログアウトボタン（別のアカウントで試したい場合）
  */
 
 import React, { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
-import { sendEmailVerification, signOut, reload } from 'firebase/auth'
+import { Navigate } from 'react-router-dom'
+import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -25,14 +24,8 @@ const EmailVerificationPage: React.FC = () => {
   // 現在ログインしているユーザー情報を取得
   const { user, loading } = useAuth()
 
-  // ページ遷移に使用
-  const navigate = useNavigate()
-
   // 再送信中かどうか（ボタン連打防止）
   const [isResending, setIsResending] = useState(false)
-
-  // 確認チェック中かどうか
-  const [isChecking, setIsChecking] = useState(false)
 
   // 操作結果のメッセージ（成功・エラー）
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
@@ -66,43 +59,16 @@ const EmailVerificationPage: React.FC = () => {
   }
 
   /**
-   * メール確認済みかどうかをチェックする処理
-   *
-   * Firebase のユーザー情報は自動更新されないため、
-   * reload() を呼んでサーバーから最新の状態を取得する必要がある
-   */
-  const handleCheckVerification = async () => {
-    if (!user) return
-
-    try {
-      setIsChecking(true)
-      setMessage(null)
-
-      // Firebaseサーバーからユーザー情報を最新に更新
-      // これをしないと emailVerified が古い状態のまま
-      await reload(user)
-
-      if (user.emailVerified) {
-        // メール確認済み → メモページへ遷移
-        navigate('/', { replace: true })
-      } else {
-        // まだ確認されていない
-        setMessage({ text: 'まだメールが確認されていません。メールのリンクをクリックしてください。', type: 'error' })
-      }
-    } catch (error) {
-      setMessage({ text: '確認に失敗しました。もう一度お試しください。', type: 'error' })
-    } finally {
-      setIsChecking(false)
-    }
-  }
-
-  /**
    * ログアウト処理
    * 別のアカウントで試したい場合などに使用
+   *
+   * signOut() 後は onAuthStateChanged が発火して user が null になり、
+   * このページの「if (!user)」チェックが <Navigate to="/login" /> を返す
+   * → 自動でログインページへリダイレクトされる
    */
   const handleLogout = async () => {
     await signOut(auth)
-    navigate('/login', { replace: true })
+    // navigate不要：signOut後にuserがnullになり、下の<Navigate>が自動でリダイレクト
   }
 
   // 認証状態の確認中は何も表示しない
@@ -133,8 +99,7 @@ const EmailVerificationPage: React.FC = () => {
         <strong>{user?.email}</strong> に確認メールを送信しました。
       </p>
       <p style={{ fontSize: 14, color: '#555', marginBottom: '12px', lineHeight: 1.7 }}>
-        メール内のリンクをクリックして、メールアドレスを確認してください。
-        確認後、下のボタンを押してください。
+        メール内のリンクをクリックして、アカウント作成を完了してください。
       </p>
 
       {/* 迷惑メール案内 */}
@@ -168,26 +133,6 @@ const EmailVerificationPage: React.FC = () => {
           {message.text}
         </div>
       )}
-
-      {/* 確認済みボタン（メインアクション） */}
-      <button
-        onClick={handleCheckVerification}
-        disabled={isChecking}
-        style={{
-          width: '100%',
-          padding: '10px 0',
-          fontSize: 15,
-          fontWeight: 600,
-          borderRadius: 9999,
-          border: 'none',
-          cursor: isChecking ? 'not-allowed' : 'pointer',
-          backgroundColor: isChecking ? '#ccc' : '#facc15',
-          color: '#222',
-          marginBottom: '12px',
-        }}
-      >
-        {isChecking ? '確認中...' : 'メールを確認しました'}
-      </button>
 
       {/* 再送信ボタン */}
       <button

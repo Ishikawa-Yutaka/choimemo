@@ -10,7 +10,7 @@
 
 import React, { useState } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン
-import type { Memo } from '../lib/database'
+import type { Memo } from '../types'
 import './MemoList.css'
 
 /**

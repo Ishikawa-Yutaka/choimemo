@@ -8,7 +8,7 @@
 
 import { useState } from 'react'
 import { createMemo, deleteMemo } from '../lib/database'
-import type { Memo } from '../lib/database'
+import type { Memo } from '../types'
 
 /**
  * useMemoOperationsフックの引数
@@ -47,7 +47,7 @@ export function useMemoOperations({
   userId,
   memos,
   setMemos,
-  currentIndex,
+  currentIndex: _currentIndex, // 将来スワイプナビゲーション実装時に使用予定
   setCurrentIndex,
 }: UseMemoOperationsProps) {
   // 操作中かどうかのフラグ（多重実行防止）
@@ -62,7 +62,7 @@ export function useMemoOperations({
    */
   const deleteMemoByIndex = async (
     index: number,
-    skipConfirm = false
+    _skipConfirm = false // 将来確認ダイアログ実装時に使用予定
   ): Promise<boolean> => {
     // 操作中は多重実行を防ぐ
     if (isOperating) return false
