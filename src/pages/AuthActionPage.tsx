@@ -17,7 +17,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { applyActionCode } from 'firebase/auth'
+import { applyActionCode, reload } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 
 /**
@@ -73,9 +73,23 @@ const AuthActionPage: React.FC = () => {
            * - 有効期限内か（24時間）
            * - 使用済みでないか
            *
-           * 確認OKなら user.emailVerified が true になる
+           * 確認OKなら Firebase サーバー上の emailVerified が true になる
            */
           await applyActionCode(auth, oobCode)
+
+          /**
+           * reload() : ローカルの currentUser を最新状態に更新
+           *
+           * applyActionCode() だけでは、ブラウザが持っている
+           * auth.currentUser の emailVerified はまだ false のまま。
+           * reload() を呼ぶことで Firebase サーバーから最新情報を取得し、
+           * emailVerified が true に更新される。
+           * これにより「ちょいMEMOを始める」→ / へ遷移できる。
+           */
+          if (auth.currentUser) {
+            await reload(auth.currentUser)
+          }
+
           setStatus('success')
         } else {
           // 未対応の mode の場合はエラー
@@ -136,9 +150,9 @@ const AuthActionPage: React.FC = () => {
           </p>
         </div>
 
-        {/* ログインページへのボタン */}
+        {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
         <Link
-          to="/login"
+          to="/"
           style={{
             display: 'block',
             width: '100%',
