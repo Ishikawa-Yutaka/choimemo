@@ -13,6 +13,7 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import EmailVerificationPage from './pages/EmailVerificationPage'
+import AuthActionPage from './pages/AuthActionPage'
 import MemoPage from './pages/MemoPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -49,6 +50,9 @@ const App: React.FC = () => {
 
         {/* メール確認待ちページ */}
         <Route path="/verify-email" element={<EmailVerificationPage />} />
+
+        {/* Firebaseメールリンクの処理ページ（確認メール・パスワードリセットのリンク先） */}
+        <Route path="/__/auth/action" element={<AuthActionPage />} />
 
         {/* メインのメモ編集ページ（ログイン必須） */}
         <Route
