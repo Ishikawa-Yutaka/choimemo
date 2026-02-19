@@ -6,7 +6,7 @@
  * 1箇所だけで認証状態を管理できます。
  */
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { onAuthStateChanged, reload, User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 
@@ -103,8 +103,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * それだけでは React の State（user）は更新されない。
    * reload() 後に setUser で新しいオブジェクトをセットすることで
    * React が変化を検知し、ProtectedRoute などが再レンダリングされる。
+   *
+   * useCallback でメモ化することで、関数の参照を固定する
+   *
+   * メモ化しないと：
+   * refreshUser() → setUser() → AuthProvider 再レンダリング
+   * → refreshUser の参照が変わる → useEffect が再実行
+   * → applyActionCode を再度呼ぶ → 使用済みoobCode で 400エラー
+   *
+   * useCallback(fn, []) で参照を固定すれば、この無限ループを防げる
    */
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (auth.currentUser) {
       // Firebase サーバーから最新の emailVerified などを取得
       await reload(auth.currentUser)
@@ -112,7 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // React が「変化した」と認識して再レンダリングされる
       setUser({ ...auth.currentUser })
     }
-  }
+  }, []) // 依存配列を空にして参照を固定（auth は安定した参照のため）
 
   return (
     <AuthContext.Provider value={{ user, loading, refreshUser }}>
