@@ -14,6 +14,7 @@ import MemoEditor from '../components/MemoEditor'
 import FloatingButton from '../components/FloatingButton'
 import Menu from '../components/Menu'
 import MemoList from '../components/MemoList'
+import DeleteProgressOverlay from '../components/DeleteProgressOverlay'
 import NavigationArrows from '../components/NavigationArrows'
 import { useAuth } from '../contexts/AuthContext'
 import { useMemoOperations } from '../hooks/useMemoOperations'
@@ -77,6 +78,19 @@ const MemoPage: React.FC = () => {
 
   // テーマ（ライトモード/ダークモード）を管理
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+  /**
+   * アカウント削除の進捗（0〜100）を管理するState
+   *
+   * null     = 削除中でない（通常状態・オーバーレイ非表示）
+   * 0〜100   = 削除進捗（パーセント・オーバーレイ表示中）
+   */
+  const [deleteProgress, setDeleteProgress] = useState<number | null>(null)
+
+  /**
+   * 削除中に表示するステータスメッセージを管理するState
+   */
+  const [deleteStatusMessage, setDeleteStatusMessage] = useState('')
 
   /**
    * デバウンス処理用のタイマーIDを保持
@@ -298,6 +312,14 @@ const MemoPage: React.FC = () => {
   /**
    * アカウント削除処理（クライアント側実装）
    *
+   * 処理の流れ:
+   * 1. 確認ダイアログを表示
+   * 2. プログレスバーを表示（0%）
+   * 3. すべてのメモを取得（10%）
+   * 4. メモを1件ずつ削除しながら進捗を更新（10〜80%）
+   * 5. Firebaseアカウントを削除（90%）
+   * 6. ログイン画面へリダイレクト（100%）
+   *
    * 注: 将来的にはCloud Functionsで自動削除する予定
    * 現在はBlazeプランが必要なため、クライアント側で実装
    *
@@ -305,7 +327,7 @@ const MemoPage: React.FC = () => {
    * 1. Cloud Functionsをデプロイ: firebase deploy --only functions
    * 2. 以下のメモ削除処理を削除（Cloud Functionsが自動的に削除するため）
    *    - getMemos(user.uid)
-   *    - Promise.all(...)
+   *    - メモを1件ずつ削除するループ処理
    * 3. アカウント削除のみ残す: await deleteUser(user)
    */
   const handleDeleteAccount = async () => {
@@ -318,23 +340,52 @@ const MemoPage: React.FC = () => {
     try {
       if (!user) return
 
+      // プログレスバーを表示開始（0%）
+      setDeleteProgress(0)
+      setDeleteStatusMessage('削除を開始しています...')
+
       // TODO: Blazeプランアップグレード後は、この処理を削除
-      // すべてのメモを取得
+      // すべてのメモを取得（10%）
+      setDeleteProgress(10)
+      setDeleteStatusMessage('メモを確認しています...')
       const allMemos = await getMemos(user.uid)
 
-      // すべてのメモを削除（並列処理で高速化）
-      await Promise.all(
-        allMemos.map(memo => deleteMemo(user.uid, memo.id))
-      )
+      // メモを1件ずつ削除しながら進捗を更新（10〜80%）
+      // メモが0件の場合はこのループをスキップ
+      for (let i = 0; i < allMemos.length; i++) {
+        // 削除開始前にメッセージだけ更新（何件目を削除中か表示）
+        setDeleteStatusMessage(`メモを削除しています... (${i + 1}/${allMemos.length})`)
 
-      // Firebase Authentication からアカウントを削除
+        // 1件削除（実際にFirestoreから削除される）
+        await deleteMemo(user.uid, allMemos[i].id)
+
+        // 削除完了後に進捗を更新
+        // 進捗を計算: 10%〜80%の範囲でメモの削除進捗を表示
+        // 例: メモが10件なら、1件削除するごとに7%ずつ増える
+        const progress = 10 + Math.round(((i + 1) / allMemos.length) * 70)
+        setDeleteProgress(progress)
+      }
+
+      // Firebaseアカウントを削除（90%）
+      setDeleteProgress(90)
+      setDeleteStatusMessage('アカウントを削除しています...')
       await deleteUser(user)
 
-      // アカウント削除後はログイン画面にリダイレクト
+      // 完了（100%）
+      setDeleteProgress(100)
+      setDeleteStatusMessage('削除が完了しました')
+
+      // 少し待ってからリダイレクト（100%を画面で確認できるように）
+      await new Promise(resolve => setTimeout(resolve, 800))
+
+      // ログイン画面にリダイレクト
       navigate('/login', { replace: true })
-      alert('アカウントを削除しました。')
     } catch (error: any) {
       console.error('アカウント削除に失敗しました:', error)
+
+      // エラーが発生したらプログレスバーを非表示に戻す
+      setDeleteProgress(null)
+      setDeleteStatusMessage('')
 
       // 再認証が必要な場合のエラーハンドリング
       if (error.code === 'auth/requires-recent-login') {
@@ -498,6 +549,15 @@ const MemoPage: React.FC = () => {
           onClose={handleMemoListClose}
           onMemoClick={handleMemoListItemClick}
           onMemoDelete={deleteMemoByIndex}
+        />
+      )}
+
+      {/* アカウント削除中のプログレスオーバーレイ */}
+      {/* deleteProgressがnullでない時（削除中）のみ表示 */}
+      {deleteProgress !== null && (
+        <DeleteProgressOverlay
+          progress={deleteProgress}
+          message={deleteStatusMessage}
         />
       )}
     </div>

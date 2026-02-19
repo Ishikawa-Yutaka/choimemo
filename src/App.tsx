@@ -11,6 +11,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import MemoPage from './pages/MemoPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -41,6 +42,9 @@ const App: React.FC = () => {
 
         {/* ログインページ */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* パスワードリセットページ */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* メインのメモ編集ページ（ログイン必須） */}
         <Route

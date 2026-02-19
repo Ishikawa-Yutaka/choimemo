@@ -240,6 +240,13 @@ const LoginPage: React.FC = () => {
           )}
         </div>
 
+        {/* パスワードリセットリンク（パスワードを忘れた場合） */}
+        <div style={{ textAlign: 'right', marginBottom: '16px', marginTop: '-8px' }}>
+          <Link to="/forgot-password" style={{ fontSize: 13, color: '#555' }}>
+            パスワードをお忘れですか？
+          </Link>
+        </div>
+
         <button
           type="submit"
           disabled={isSubmitting}
