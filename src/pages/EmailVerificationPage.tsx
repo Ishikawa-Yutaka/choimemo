@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { sendEmailVerification, signOut, reload } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -23,7 +23,7 @@ import { useAuth } from '../contexts/AuthContext'
  */
 const EmailVerificationPage: React.FC = () => {
   // 現在ログインしているユーザー情報を取得
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   // ページ遷移に使用
   const navigate = useNavigate()
@@ -103,6 +103,25 @@ const EmailVerificationPage: React.FC = () => {
   const handleLogout = async () => {
     await signOut(auth)
     navigate('/login', { replace: true })
+  }
+
+  // 認証状態の確認中は何も表示しない
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: 18, color: '#666' }}>
+        読み込み中...
+      </div>
+    )
+  }
+
+  // 未ログインならログインページへリダイレクト
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  // メール確認済みならメモページへリダイレクト
+  if (user.emailVerified) {
+    return <Navigate to="/" replace />
   }
 
   return (
