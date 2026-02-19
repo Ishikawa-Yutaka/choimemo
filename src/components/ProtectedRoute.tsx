@@ -82,7 +82,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   /**
-   * ログイン済みの場合
+   * ログイン済みだがメール未確認の場合
+   *
+   * user.emailVerified は Firebase が管理するフラグで、
+   * メール確認リンクをクリックすると true になります。
+   * 未確認のままメモページに入れないようにリダイレクトします。
+   */
+  if (!user.emailVerified) {
+    return <Navigate to="/verify-email" replace />
+  }
+
+  /**
+   * ログイン済み かつ メール確認済みの場合
    *
    * children（保護されたページコンポーネント）をそのまま表示します。
    */

@@ -9,7 +9,7 @@
 import React, { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 
@@ -92,10 +92,14 @@ const SignupPage: React.FC = () => {
       setErrorCode(null)
 
       // Firebase Authentication を使って新規ユーザーを作成
-      await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
 
-      // 登録成功後はそのままメモページ（/）へ遷移
-      navigate('/', { replace: true })
+      // 作成したユーザーに確認メールを送信
+      // ユーザーがメールのリンクをクリックすることで、メールアドレスが確認済みになる
+      await sendEmailVerification(userCredential.user)
+
+      // メール確認待ち画面へ遷移（メモページへはまだ行けない）
+      navigate('/verify-email', { replace: true })
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const err = error as any
