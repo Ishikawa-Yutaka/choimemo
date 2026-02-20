@@ -4,15 +4,13 @@
  * ヘッダーの3点メニューアイコンをタップした時に表示されるメニュー
  * - メモ一覧リンク
  * - ログアウトボタン
- * - ダークモード/ライトモード切り替えボタン
+ * - アカウント削除ボタン
  */
 
 import React from 'react'
 import {
   HiOutlineXMark,
   HiOutlineDocumentText,
-  HiOutlineMoon,
-  HiOutlineSun,
   HiOutlineArrowRightOnRectangle,
   HiOutlineTrash,
 } from 'react-icons/hi2'
@@ -28,12 +26,10 @@ interface MenuProps {
   onLogout: () => void
   /** メモ一覧リンクがクリックされた時の処理 */
   onMemoList: () => void
-  /** ダークモード切り替えボタンがクリックされた時の処理 */
-  onToggleTheme: () => void
   /** アカウント削除ボタンがクリックされた時の処理 */
   onDeleteAccount: () => void
-  /** 現在のテーマ（'light' または 'dark'） */
-  currentTheme: 'light' | 'dark'
+  /** ログイン中のユーザーのメールアドレス */
+  userEmail?: string | null
 }
 
 /**
@@ -46,9 +42,8 @@ const Menu: React.FC<MenuProps> = ({
   onClose,
   onLogout,
   onMemoList,
-  onToggleTheme,
   onDeleteAccount,
-  currentTheme,
+  userEmail,
 }) => {
   return (
     <>
@@ -64,6 +59,13 @@ const Menu: React.FC<MenuProps> = ({
           </button>
         </div>
 
+        {/* ログイン中のアカウント情報 */}
+        {userEmail && (
+          <div className="menu-user-info">
+            <div className="menu-user-email">{userEmail}</div>
+          </div>
+        )}
+
         <div className="menu-items">
           {/* メモ一覧リンク */}
           <button className="menu-item" onClick={onMemoList}>
@@ -71,18 +73,6 @@ const Menu: React.FC<MenuProps> = ({
               <HiOutlineDocumentText />
             </span>
             <span className="menu-item-text">メモ一覧</span>
-          </button>
-
-          {/* ダークモード切り替え */}
-          <button className="menu-item" onClick={onToggleTheme}>
-            <span className="menu-item-icon">
-              {currentTheme === 'light' ? <HiOutlineMoon /> : <HiOutlineSun />}
-            </span>
-            <span className="menu-item-text">
-              {currentTheme === 'light'
-                ? 'ダークモードに切り替え'
-                : 'ライトモードに切り替え'}
-            </span>
           </button>
 
           {/* ログアウトボタン */}

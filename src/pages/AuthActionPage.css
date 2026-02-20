@@ -1,0 +1,98 @@
+/**
+ * 認証アクション処理ページのスタイル
+ * (メール確認リンクをクリックした時の処理画面)
+ */
+
+/* 読み込み中・処理中表示 */
+.auth-action-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #666;
+}
+
+/* ページ全体のコンテナ */
+.auth-action-container {
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* タイトル */
+.auth-action-title {
+  margin-bottom: 16px;
+}
+
+/* 成功メッセージボックス */
+.auth-action-success {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  margin-bottom: 24px;
+}
+
+.auth-action-success p:first-child {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #166534;
+  font-weight: 600;
+}
+
+.auth-action-success p:last-child {
+  margin: 0;
+  font-size: 14px;
+  color: #15803d;
+}
+
+/* エラーメッセージボックス */
+.auth-action-error {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #ffe5e5;
+  border: 1px solid #fecaca;
+  margin-bottom: 24px;
+}
+
+.auth-action-error p:first-child {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #b00020;
+  font-weight: 600;
+}
+
+.auth-action-error p:last-child {
+  margin: 0;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+/* ボタン（メモページへ、ログインページへ） */
+.auth-action-button {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background-color: #facc15;
+  color: #222;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.auth-action-button:hover {
+  opacity: 0.9;
+}
+
+/* ログインページへ戻るリンクのテキスト */
+.auth-action-footer {
+  font-size: 13px;
+  text-align: center;
+}

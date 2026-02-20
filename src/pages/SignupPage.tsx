@@ -13,6 +13,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import './SignupPage.css'
 
 /**
  * サインアップフォームの入力値を検証するためのZodスキーマ
@@ -133,30 +134,15 @@ const SignupPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '16px' }}>アカウント作成</h1>
+    <div className="signup-container">
+      <h1 className="signup-title">アカウント作成</h1>
 
       {/* エラーメッセージ（日本語） */}
       {errorMessage && (
-        <div
-          style={{
-            marginBottom: '12px',
-            padding: '8px 12px',
-            borderRadius: 4,
-            backgroundColor: '#ffe5e5',
-            color: '#b00020',
-            fontSize: '14px',
-          }}
-        >
+        <div className="signup-error">
           {errorMessage}
           {errorCode && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: '11px',
-                opacity: 0.8,
-              }}
-            >
+            <div className="signup-error-code">
               エラーコード: <code>{errorCode}</code>
             </div>
           )}
@@ -164,12 +150,9 @@ const SignupPage: React.FC = () => {
       )}
 
       {/* サインアップフォーム */}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label
-            htmlFor="email"
-            style={{ display: 'block', marginBottom: 4, fontSize: 14 }}
-          >
+      <form className="signup-form" onSubmit={handleSubmit}>
+        <div className="signup-field">
+          <label htmlFor="email" className="signup-label">
             メールアドレス
           </label>
           <input
@@ -178,34 +161,18 @@ const SignupPage: React.FC = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              fontSize: 14,
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              boxSizing: 'border-box',
-            }}
+            className="signup-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.email && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 12,
-                color: '#b00020',
-              }}
-            >
+            <div className="signup-field-error">
               {fieldErrors.email}
             </div>
           )}
         </div>
 
-        <div style={{ marginBottom: '16px' }}>
-          <label
-            htmlFor="password"
-            style={{ display: 'block', marginBottom: 4, fontSize: 14 }}
-          >
+        <div className="signup-field">
+          <label htmlFor="password" className="signup-label">
             パスワード
           </label>
           <input
@@ -214,24 +181,11 @@ const SignupPage: React.FC = () => {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="new-password"
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              fontSize: 14,
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              boxSizing: 'border-box',
-            }}
+            className="signup-input"
           />
           {/* パスワード入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.password && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 12,
-                color: '#b00020',
-              }}
-            >
+            <div className="signup-field-error">
               {fieldErrors.password}
             </div>
           )}
@@ -240,33 +194,17 @@ const SignupPage: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          style={{
-            width: '100%',
-            padding: '10px 0',
-            fontSize: 15,
-            fontWeight: 600,
-            borderRadius: 9999,
-            border: 'none',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            backgroundColor: isSubmitting ? '#ccc' : '#facc15',
-            color: '#222',
-          }}
+          className="signup-button"
         >
           {isSubmitting ? '作成中...' : 'アカウントを作成'}
         </button>
       </form>
 
       {/* または区切り線 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          margin: '20px 0',
-        }}
-      >
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
-        <span style={{ padding: '0 12px', fontSize: 13, color: '#666' }}>または</span>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
+      <div className="signup-divider">
+        <div className="signup-divider-line" />
+        <span className="signup-divider-text">または</span>
+        <div className="signup-divider-line" />
       </div>
 
       {/* Google ログインボタン */}
@@ -278,7 +216,7 @@ const SignupPage: React.FC = () => {
       />
 
       {/* ログインページへのリンク */}
-      <p style={{ marginTop: 16, fontSize: 13 }}>
+      <p className="signup-login-link">
         すでにアカウントをお持ちの方は <Link to="/login">こちらからログイン</Link>
       </p>
     </div>

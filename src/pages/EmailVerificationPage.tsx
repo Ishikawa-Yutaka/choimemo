@@ -14,6 +14,7 @@ import { Navigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import './EmailVerificationPage.css'
 
 /**
  * メール確認待ちページを表示するコンポーネント
@@ -74,7 +75,7 @@ const EmailVerificationPage: React.FC = () => {
   // 認証状態の確認中は何も表示しない
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: 18, color: '#666' }}>
+      <div className="verify-loading">
         読み込み中...
       </div>
     )
@@ -91,44 +92,28 @@ const EmailVerificationPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '8px' }}>メールを確認してください</h1>
+    <div className="verify-container">
+      <h1 className="verify-title">メールを確認してください</h1>
 
       {/* 説明文 */}
-      <p style={{ fontSize: 14, color: '#555', marginBottom: '8px', lineHeight: 1.7 }}>
+      <p className="verify-description">
         <strong>{user?.email}</strong> に確認メールを送信しました。
       </p>
-      <p style={{ fontSize: 14, color: '#555', marginBottom: '12px', lineHeight: 1.7 }}>
+      <p className="verify-description-last">
         メール内のリンクをクリックして、アカウント作成を完了してください。
       </p>
 
       {/* 迷惑メール案内 */}
-      <div
-        style={{
-          padding: '10px 12px',
-          borderRadius: 6,
-          backgroundColor: '#fffbeb',
-          border: '1px solid #fde68a',
-          marginBottom: '24px',
-          fontSize: 13,
-          color: '#92400e',
-          lineHeight: 1.7,
-        }}
-      >
+      <div className="verify-notice">
         メールが届かない場合は、<strong>迷惑メールフォルダ</strong>をご確認ください。
       </div>
 
       {/* 操作結果メッセージ */}
       {message && (
         <div
-          style={{
-            marginBottom: '16px',
-            padding: '10px 12px',
-            borderRadius: 4,
-            backgroundColor: message.type === 'success' ? '#f0fdf4' : '#ffe5e5',
-            color: message.type === 'success' ? '#166534' : '#b00020',
-            fontSize: 14,
-          }}
+          className={`verify-message ${
+            message.type === 'success' ? 'verify-message-success' : 'verify-message-error'
+          }`}
         >
           {message.text}
         </div>
@@ -138,35 +123,14 @@ const EmailVerificationPage: React.FC = () => {
       <button
         onClick={handleResend}
         disabled={isResending}
-        style={{
-          width: '100%',
-          padding: '10px 0',
-          fontSize: 14,
-          fontWeight: 600,
-          borderRadius: 9999,
-          border: '1px solid #ccc',
-          cursor: isResending ? 'not-allowed' : 'pointer',
-          backgroundColor: 'white',
-          color: '#555',
-          marginBottom: '24px',
-        }}
+        className="verify-resend-button"
       >
         {isResending ? '送信中...' : '確認メールを再送信'}
       </button>
 
       {/* ログアウトリンク */}
-      <p style={{ fontSize: 13, textAlign: 'center' }}>
-        <button
-          onClick={handleLogout}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#999',
-            fontSize: 13,
-            cursor: 'pointer',
-            textDecoration: 'underline',
-          }}
-        >
+      <p className="verify-logout-link">
+        <button onClick={handleLogout} className="verify-logout-button">
           別のアカウントでログイン
         </button>
       </p>

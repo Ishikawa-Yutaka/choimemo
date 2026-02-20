@@ -1,0 +1,121 @@
+/**
+ * ログインページのスタイル
+ */
+
+/* ページ全体のコンテナ */
+.login-container {
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* タイトル */
+.login-title {
+  margin-bottom: 16px;
+}
+
+/* エラーメッセージ */
+.login-error {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #ffe5e5;
+  color: #b00020;
+  font-size: 14px;
+}
+
+/* エラーコード表示 */
+.login-error-code {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* フォーム全体 */
+.login-form {
+  /* フォーム自体には特別なスタイルなし */
+}
+
+/* フォームフィールド（メール、パスワード） */
+.login-field {
+  margin-bottom: 12px;
+}
+
+/* ラベル */
+.login-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* 入力欄 */
+.login-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* フィールドエラーメッセージ */
+.login-field-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #b00020;
+}
+
+/* パスワードリセットリンク */
+.login-forgot-password {
+  text-align: right;
+  margin-bottom: 16px;
+  margin-top: -8px;
+}
+
+.login-forgot-password a {
+  font-size: 13px;
+  color: #555;
+}
+
+/* ログインボタン */
+.login-button {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background-color: #facc15;
+  color: #222;
+}
+
+.login-button:disabled {
+  cursor: not-allowed;
+  background-color: #ccc;
+}
+
+/* 区切り線（または） */
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.login-divider-text {
+  padding: 0 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* サインアップリンク */
+.login-signup-link {
+  margin-top: 16px;
+  font-size: 13px;
+}

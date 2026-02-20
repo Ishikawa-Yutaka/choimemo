@@ -20,6 +20,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import './AuthActionPage.css'
 
 /**
  * 処理の状態を表す型
@@ -121,7 +122,7 @@ const AuthActionPage: React.FC = () => {
   // 処理中の表示
   if (status === 'loading') {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: 18, color: '#666' }}>
+      <div className="auth-action-loading">
         処理中...
       </div>
     )
@@ -130,23 +131,15 @@ const AuthActionPage: React.FC = () => {
   // 成功時の表示
   if (status === 'success') {
     return (
-      <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-        <h1 style={{ marginBottom: '16px' }}>アカウントが作成されました！</h1>
+      <div className="auth-action-container">
+        <h1 className="auth-action-title">アカウントが作成されました！</h1>
 
         {/* 成功メッセージ */}
-        <div
-          style={{
-            padding: '16px',
-            borderRadius: 8,
-            backgroundColor: '#f0fdf4',
-            border: '1px solid #bbf7d0',
-            marginBottom: '24px',
-          }}
-        >
-          <p style={{ margin: '0 0 8px', fontSize: 14, color: '#166534', fontWeight: 600 }}>
+        <div className="auth-action-success">
+          <p>
             メールアドレスの確認が完了しました
           </p>
-          <p style={{ margin: 0, fontSize: 14, color: '#15803d' }}>
+          <p>
             ちょいMEMOをお使いいただけます。
           </p>
         </div>
@@ -154,21 +147,7 @@ const AuthActionPage: React.FC = () => {
         {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
         <Link
           to="/"
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '10px 0',
-            fontSize: 15,
-            fontWeight: 600,
-            borderRadius: 9999,
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: '#facc15',
-            color: '#222',
-            textAlign: 'center',
-            textDecoration: 'none',
-            boxSizing: 'border-box',
-          }}
+          className="auth-action-button"
         >
           ちょいMEMOを始める
         </Link>
@@ -178,47 +157,25 @@ const AuthActionPage: React.FC = () => {
 
   // エラー時の表示
   return (
-    <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '16px' }}>エラーが発生しました</h1>
+    <div className="auth-action-container">
+      <h1 className="auth-action-title">エラーが発生しました</h1>
 
       {/* エラーメッセージ */}
-      <div
-        style={{
-          padding: '12px',
-          borderRadius: 8,
-          backgroundColor: '#ffe5e5',
-          color: '#b00020',
-          fontSize: 14,
-          marginBottom: '24px',
-        }}
-      >
-        {errorMessage}
+      <div className="auth-action-error">
+        <p>
+          {errorMessage}
+        </p>
       </div>
 
       {/* メール再送信ページへのリンク */}
       <Link
         to="/verify-email"
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '10px 0',
-          fontSize: 15,
-          fontWeight: 600,
-          borderRadius: 9999,
-          border: 'none',
-          cursor: 'pointer',
-          backgroundColor: '#facc15',
-          color: '#222',
-          textAlign: 'center',
-          textDecoration: 'none',
-          boxSizing: 'border-box',
-          marginBottom: '12px',
-        }}
+        className="auth-action-button"
       >
         確認メールを再送信する
       </Link>
 
-      <p style={{ fontSize: 13, textAlign: 'center' }}>
+      <p className="auth-action-footer">
         <Link to="/login">ログインページへ戻る</Link>
       </p>
     </div>

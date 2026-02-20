@@ -13,6 +13,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import './LoginPage.css'
 
 /**
  * ログインフォームの入力値を検証するためのZodスキーマ
@@ -138,30 +139,15 @@ const LoginPage: React.FC = () => {
 
 
   return (
-    <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '16px' }}>ログイン</h1>
+    <div className="login-container">
+      <h1 className="login-title">ログイン</h1>
 
       {/* エラーメッセージ（日本語） */}
       {errorMessage && (
-        <div
-          style={{
-            marginBottom: '12px',
-            padding: '8px 12px',
-            borderRadius: 4,
-            backgroundColor: '#ffe5e5',
-            color: '#b00020',
-            fontSize: '14px',
-          }}
-        >
+        <div className="login-error">
           {errorMessage}
           {errorCode && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: '11px',
-                opacity: 0.8,
-              }}
-            >
+            <div className="login-error-code">
               エラーコード: <code>{errorCode}</code>
             </div>
           )}
@@ -169,12 +155,9 @@ const LoginPage: React.FC = () => {
       )}
 
       {/* ログインフォーム */}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label
-            htmlFor="email"
-            style={{ display: 'block', marginBottom: 4, fontSize: 14 }}
-          >
+      <form className="login-form" onSubmit={handleSubmit}>
+        <div className="login-field">
+          <label htmlFor="email" className="login-label">
             メールアドレス
           </label>
           <input
@@ -183,34 +166,18 @@ const LoginPage: React.FC = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              fontSize: 14,
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              boxSizing: 'border-box',
-            }}
+            className="login-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.email && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 12,
-                color: '#b00020',
-              }}
-            >
+            <div className="login-field-error">
               {fieldErrors.email}
             </div>
           )}
         </div>
 
-        <div style={{ marginBottom: '16px' }}>
-          <label
-            htmlFor="password"
-            style={{ display: 'block', marginBottom: 4, fontSize: 14 }}
-          >
+        <div className="login-field">
+          <label htmlFor="password" className="login-label">
             パスワード
           </label>
           <input
@@ -219,32 +186,19 @@ const LoginPage: React.FC = () => {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              fontSize: 14,
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              boxSizing: 'border-box',
-            }}
+            className="login-input"
           />
           {/* パスワード入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.password && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 12,
-                color: '#b00020',
-              }}
-            >
+            <div className="login-field-error">
               {fieldErrors.password}
             </div>
           )}
         </div>
 
         {/* パスワードリセットリンク（パスワードを忘れた場合） */}
-        <div style={{ textAlign: 'right', marginBottom: '16px', marginTop: '-8px' }}>
-          <Link to="/forgot-password" style={{ fontSize: 13, color: '#555' }}>
+        <div className="login-forgot-password">
+          <Link to="/forgot-password">
             パスワードをお忘れですか？
           </Link>
         </div>
@@ -252,33 +206,17 @@ const LoginPage: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          style={{
-            width: '100%',
-            padding: '10px 0',
-            fontSize: 15,
-            fontWeight: 600,
-            borderRadius: 9999,
-            border: 'none',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            backgroundColor: isSubmitting ? '#ccc' : '#facc15',
-            color: '#222',
-          }}
+          className="login-button"
         >
           {isSubmitting ? 'ログイン中...' : 'ログイン'}
         </button>
       </form>
 
       {/* または区切り線 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          margin: '20px 0',
-        }}
-      >
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
-        <span style={{ padding: '0 12px', fontSize: 13, color: '#666' }}>または</span>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
+      <div className="login-divider">
+        <div className="login-divider-line" />
+        <span className="login-divider-text">または</span>
+        <div className="login-divider-line" />
       </div>
 
       {/* Google ログインボタン */}
@@ -290,7 +228,7 @@ const LoginPage: React.FC = () => {
       />
 
       {/* サインアップへのリンク */}
-      <p style={{ marginTop: 16, fontSize: 13 }}>
+      <p className="login-signup-link">
         アカウントをお持ちでない方は{' '}
         <Link to="/signup">こちらから新規登録</Link>
       </p>

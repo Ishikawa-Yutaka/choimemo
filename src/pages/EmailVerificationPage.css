@@ -1,0 +1,107 @@
+/**
+ * メール確認待ちページのスタイル
+ */
+
+/* 読み込み中表示 */
+.verify-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #666;
+}
+
+/* ページ全体のコンテナ */
+.verify-container {
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* タイトル */
+.verify-title {
+  margin-bottom: 8px;
+}
+
+/* 説明文 */
+.verify-description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+  line-height: 1.7;
+}
+
+.verify-description-last {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+/* 迷惑メール案内 */
+.verify-notice {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.7;
+}
+
+/* 操作結果メッセージ */
+.verify-message {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.verify-message-success {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.verify-message-error {
+  background-color: #ffe5e5;
+  color: #b00020;
+}
+
+/* 再送信ボタン */
+.verify-resend-button {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: white;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.verify-resend-button:disabled {
+  cursor: not-allowed;
+}
+
+/* ログアウトリンク */
+.verify-logout-link {
+  font-size: 13px;
+  text-align: center;
+}
+
+.verify-logout-button {
+  background: none;
+  border: none;
+  color: #555;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.verify-logout-button:hover {
+  opacity: 0.7;
+}

@@ -76,9 +76,6 @@ const MemoPage: React.FC = () => {
   // メモ一覧の表示/非表示を管理
   const [isMemoListOpen, setIsMemoListOpen] = useState(false)
 
-  // テーマ（ライトモード/ダークモード）を管理
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-
   /**
    * アカウント削除の進捗（0〜100）を管理するState
    *
@@ -427,15 +424,6 @@ const MemoPage: React.FC = () => {
   }
 
   /**
-   * テーマ切り替え処理（ライト ⇔ ダーク）
-   */
-  const handleToggleTheme = () => {
-    // 現在のテーマと逆のテーマに切り替え
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'))
-    setIsMenuOpen(false)
-  }
-
-  /**
    * 新規メモボタンがクリックされた時の処理
    */
   const handleNewMemo = async () => {
@@ -536,9 +524,8 @@ const MemoPage: React.FC = () => {
           onClose={handleMenuClose}
           onLogout={handleLogout}
           onMemoList={handleMemoList}
-          onToggleTheme={handleToggleTheme}
           onDeleteAccount={handleDeleteAccount}
-          currentTheme={theme}
+          userEmail={user?.email}
         />
       )}
 

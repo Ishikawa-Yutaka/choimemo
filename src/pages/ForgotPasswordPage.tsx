@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
+import './ForgotPasswordPage.css'
 
 /**
  * メールアドレス入力欄のバリデーションスキーマ（Zod）
@@ -108,49 +109,20 @@ const ForgotPasswordPage: React.FC = () => {
   // メール送信完了後の画面
   if (isSent) {
     return (
-      <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-        <h1 style={{ marginBottom: '16px' }}>メールを送信しました</h1>
+      <div className="forgot-password-container">
+        <h1 className="forgot-password-title">メールを送信しました</h1>
 
         {/* 送信完了メッセージ */}
-        <div
-          style={{
-            padding: '16px',
-            borderRadius: 8,
-            backgroundColor: '#f0fdf4',
-            border: '1px solid #bbf7d0',
-            marginBottom: '24px',
-          }}
-        >
-          <p style={{ margin: '0 0 8px', fontSize: 14, color: '#166534', fontWeight: 600 }}>
-            送信完了
-          </p>
-          <p style={{ margin: 0, fontSize: 14, color: '#15803d' }}>
+        <div className="forgot-password-success">
+          <p>送信完了</p>
+          <p>
             <strong>{email}</strong> にパスワードリセット用のメールを送信しました。
           </p>
-          <p style={{ margin: '8px 0 0', fontSize: 13, color: '#16a34a' }}>
-            メールが届かない場合は、迷惑メールフォルダをご確認ください。
-          </p>
+          <p>メールが届かない場合は、迷惑メールフォルダをご確認ください。</p>
         </div>
 
         {/* ログインページへのリンク */}
-        <Link
-          to="/login"
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '10px 0',
-            fontSize: 15,
-            fontWeight: 600,
-            borderRadius: 9999,
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: '#facc15',
-            color: '#222',
-            textAlign: 'center',
-            textDecoration: 'none',
-            boxSizing: 'border-box',
-          }}
-        >
+        <Link to="/login" className="forgot-password-button">
           ログインページへ戻る
         </Link>
       </div>
@@ -159,37 +131,28 @@ const ForgotPasswordPage: React.FC = () => {
 
   // メール入力フォームの画面
   return (
-    <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '8px' }}>パスワードをお忘れですか？</h1>
+    <div className="forgot-password-container">
+      <h1 className="forgot-password-title">パスワードをお忘れですか？</h1>
 
       {/* 説明文 */}
-      <p style={{ fontSize: 14, color: '#555', marginBottom: '20px' }}>
+      <p className="forgot-password-description">
         登録済みのメールアドレスを入力してください。
         パスワードリセット用のメールをお送りします。
       </p>
 
       {/* エラーメッセージ */}
       {errorMessage && (
-        <div
-          style={{
-            marginBottom: '12px',
-            padding: '8px 12px',
-            borderRadius: 4,
-            backgroundColor: '#ffe5e5',
-            color: '#b00020',
-            fontSize: '14px',
-          }}
-        >
+        <div className="forgot-password-error">
           {errorMessage}
         </div>
       )}
 
       {/* メールアドレス入力フォーム */}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
+      <form onSubmit={handleSubmit} className="forgot-password-form">
+        <div className="forgot-password-field">
           <label
             htmlFor="email"
-            style={{ display: 'block', marginBottom: 4, fontSize: 14 }}
+            className="forgot-password-label"
           >
             メールアドレス
           </label>
@@ -200,18 +163,11 @@ const ForgotPasswordPage: React.FC = () => {
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
             placeholder="example@email.com"
-            style={{
-              width: '100%',
-              padding: '8px 10px',
-              fontSize: 14,
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              boxSizing: 'border-box',
-            }}
+            className="forgot-password-input"
           />
           {/* Zodのバリデーションエラー */}
           {fieldErrors.email && (
-            <div style={{ marginTop: 4, fontSize: 12, color: '#b00020' }}>
+            <div className="forgot-password-field-error">
               {fieldErrors.email}
             </div>
           )}
@@ -221,25 +177,14 @@ const ForgotPasswordPage: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          style={{
-            width: '100%',
-            padding: '10px 0',
-            fontSize: 15,
-            fontWeight: 600,
-            borderRadius: 9999,
-            border: 'none',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            backgroundColor: isSubmitting ? '#ccc' : '#facc15',
-            color: '#222',
-            marginBottom: '16px',
-          }}
+          className="forgot-password-button"
         >
           {isSubmitting ? '送信中...' : 'リセットメールを送信'}
         </button>
       </form>
 
       {/* ログインページへ戻るリンク */}
-      <p style={{ fontSize: 13, textAlign: 'center' }}>
+      <p className="forgot-password-login-link">
         <Link to="/login">ログインページへ戻る</Link>
       </p>
     </div>

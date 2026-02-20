@@ -1,0 +1,110 @@
+/**
+ * サインアップページのスタイル
+ */
+
+/* ページ全体のコンテナ */
+.signup-container {
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* タイトル */
+.signup-title {
+  margin-bottom: 16px;
+}
+
+/* エラーメッセージ */
+.signup-error {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #ffe5e5;
+  color: #b00020;
+  font-size: 14px;
+}
+
+/* エラーコード表示 */
+.signup-error-code {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* フォーム全体 */
+.signup-form {
+  /* フォーム自体には特別なスタイルなし */
+}
+
+/* フォームフィールド（メール、パスワード） */
+.signup-field {
+  margin-bottom: 12px;
+}
+
+/* ラベル */
+.signup-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* 入力欄 */
+.signup-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* フィールドエラーメッセージ */
+.signup-field-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #b00020;
+}
+
+/* サインアップボタン */
+.signup-button {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background-color: #facc15;
+  color: #222;
+  margin-top: 16px;
+}
+
+.signup-button:disabled {
+  cursor: not-allowed;
+  background-color: #ccc;
+}
+
+/* 区切り線（または） */
+.signup-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.signup-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.signup-divider-text {
+  padding: 0 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* ログインリンク */
+.signup-login-link {
+  margin-top: 16px;
+  font-size: 13px;
+}
