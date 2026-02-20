@@ -12,6 +12,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
+import GoogleLoginButton from '../components/GoogleLoginButton'
 
 /**
  * ログインフォームの入力値を検証するためのZodスキーマ
@@ -134,6 +135,7 @@ const LoginPage: React.FC = () => {
       setIsSubmitting(false)
     }
   }
+
 
   return (
     <div style={{ padding: '24px', maxWidth: 400, margin: '0 auto' }}>
@@ -265,6 +267,27 @@ const LoginPage: React.FC = () => {
           {isSubmitting ? 'ログイン中...' : 'ログイン'}
         </button>
       </form>
+
+      {/* または区切り線 */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          margin: '20px 0',
+        }}
+      >
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
+        <span style={{ padding: '0 12px', fontSize: 13, color: '#666' }}>または</span>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }} />
+      </div>
+
+      {/* Google ログインボタン */}
+      <GoogleLoginButton
+        onError={(message, code) => {
+          setErrorMessage(message)
+          setErrorCode(code)
+        }}
+      />
 
       {/* サインアップへのリンク */}
       <p style={{ marginTop: 16, fontSize: 13 }}>
