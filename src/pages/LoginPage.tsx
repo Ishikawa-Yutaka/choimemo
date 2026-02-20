@@ -13,6 +13,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import PasswordInput from '../components/PasswordInput'
 import './LoginPage.css'
 
 /**
@@ -166,6 +167,7 @@ const LoginPage: React.FC = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
+            placeholder="example@email.com"
             className="login-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
@@ -176,25 +178,15 @@ const LoginPage: React.FC = () => {
           )}
         </div>
 
-        <div className="login-field">
-          <label htmlFor="password" className="login-label">
-            パスワード
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            className="login-input"
-          />
-          {/* パスワード入力欄の直下に、Zodのバリデーションエラーを表示 */}
-          {fieldErrors.password && (
-            <div className="login-field-error">
-              {fieldErrors.password}
-            </div>
-          )}
-        </div>
+        <PasswordInput
+          id="password"
+          value={password}
+          onChange={setPassword}
+          autoComplete="current-password"
+          placeholder="パスワードを入力"
+          classPrefix="login"
+          error={fieldErrors.password}
+        />
 
         {/* パスワードリセットリンク（パスワードを忘れた場合） */}
         <div className="login-forgot-password">

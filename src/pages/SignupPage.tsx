@@ -13,13 +13,14 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import PasswordInput from '../components/PasswordInput'
 import './SignupPage.css'
 
 /**
  * サインアップフォームの入力値を検証するためのZodスキーマ
  *
  * - email: 空ではない + メールアドレス形式
- * - password: 6文字以上（Firebaseの推奨に合わせる）
+ * - password: 6文字以上 + 英字を含む + 数字を含む
  */
 const signupSchema = z.object({
   email: z
@@ -28,7 +29,9 @@ const signupSchema = z.object({
     .email('メールアドレスの形式が正しくありません'),
   password: z
     .string()
-    .min(6, 'パスワードは6文字以上で入力してください'),
+    .min(6, 'パスワードは6文字以上で入力してください')
+    .regex(/[a-zA-Z]/, 'パスワードには英字を含めてください')
+    .regex(/[0-9]/, 'パスワードには数字を含めてください'),
 })
 
 /**
@@ -161,6 +164,7 @@ const SignupPage: React.FC = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
+            placeholder="example@email.com"
             className="signup-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
@@ -171,25 +175,15 @@ const SignupPage: React.FC = () => {
           )}
         </div>
 
-        <div className="signup-field">
-          <label htmlFor="password" className="signup-label">
-            パスワード
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="new-password"
-            className="signup-input"
-          />
-          {/* パスワード入力欄の直下に、Zodのバリデーションエラーを表示 */}
-          {fieldErrors.password && (
-            <div className="signup-field-error">
-              {fieldErrors.password}
-            </div>
-          )}
-        </div>
+        <PasswordInput
+          id="password"
+          value={password}
+          onChange={setPassword}
+          autoComplete="new-password"
+          placeholder="英数字を含む6文字以上"
+          classPrefix="signup"
+          error={fieldErrors.password}
+        />
 
         <button
           type="submit"
