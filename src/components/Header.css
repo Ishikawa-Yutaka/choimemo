@@ -4,6 +4,13 @@
  */
 
 .header {
+  /* 画面上部に固定 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100; /* 他の要素の上に表示 */
+
   /* 背景色: 黄色（デザインに合わせた色） */
   background-color: #f4e6b8;
 

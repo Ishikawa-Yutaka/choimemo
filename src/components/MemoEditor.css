@@ -34,6 +34,9 @@
   /* 残りの高さ全体を使う */
   flex: 1;
 
+  /* 縦スクロールを有効化 */
+  overflow-y: auto;
+
   /* ボーダーなし */
   border: none;
   outline: none; /* フォーカス時の枠線も消す */
