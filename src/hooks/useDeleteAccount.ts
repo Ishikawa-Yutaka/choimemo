@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { deleteUser } from 'firebase/auth'
 import { getMemos, deleteMemo } from '../lib/database'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import type { User } from 'firebase/auth'
 
 /**
@@ -123,20 +124,26 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
 
       // ログイン画面にリダイレクト
       navigate('/login', { replace: true })
-    } catch (error: any) {
+    } catch (error) {
       console.error('アカウント削除に失敗しました:', error)
+
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
 
       // エラーが発生したらプログレスバーを非表示に戻す
       setDeleteProgress(null)
       setDeleteStatusMessage('')
 
       // 再認証が必要な場合のエラーハンドリング
-      if (error.code === 'auth/requires-recent-login') {
+      // この特殊なケースは詳しい説明が必要なので、個別に処理
+      if (err.code === 'auth/requires-recent-login') {
         alert(
           'セキュリティのため、アカウント削除には再ログインが必要です。\n\n一度ログアウトして、再度ログインしてから削除してください。'
         )
       } else {
-        alert('アカウント削除に失敗しました。もう一度お試しください。')
+        // その他のエラーは集約したエラーハンドラーを使用
+        const message = getAuthErrorMessage(err)
+        alert(message)
       }
     }
   }

@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import './ForgotPasswordPage.css'
 
 /**
@@ -83,24 +84,12 @@ const ForgotPasswordPage: React.FC = () => {
       // 送信成功 → 「送信完了」の表示に切り替える
       setIsSent(true)
     } catch (error) {
-      const err = error as any
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
 
-      // エラーコードごとに日本語メッセージを出し分け
-      switch (err.code) {
-        case 'auth/invalid-email':
-          setErrorMessage('メールアドレスの形式が正しくありません。')
-          break
-        case 'auth/too-many-requests':
-          setErrorMessage(
-            'リクエストが多すぎます。しばらく時間をおいてから再度お試しください。'
-          )
-          break
-        default:
-          setErrorMessage(
-            'メールの送信に失敗しました。時間をおいて再度お試しください。'
-          )
-          break
-      }
+      // 集約したエラーハンドラーを使用してメッセージを取得
+      const message = getAuthErrorMessage(err)
+      setErrorMessage(message)
     } finally {
       setIsSubmitting(false)
     }

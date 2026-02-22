@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore'
+
 // User types
 export interface User {
   uid: string
@@ -17,10 +19,10 @@ export interface Memo {
 export interface MemoDocument {
   content: string
   imageUrls?: string[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  created_at: any // Firestore Timestamp
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updated_at: any // Firestore Timestamp
+  /** Firestore Timestamp（Date型に変換される前の生データ） */
+  created_at: Timestamp
+  /** Firestore Timestamp（Date型に変換される前の生データ） */
+  updated_at: Timestamp
 }
 
 // API Response types

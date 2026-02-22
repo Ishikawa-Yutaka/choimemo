@@ -14,6 +14,7 @@ import { Navigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import './EmailVerificationPage.css'
 
 /**
@@ -48,12 +49,13 @@ const EmailVerificationPage: React.FC = () => {
       await sendEmailVerification(user)
 
       setMessage({ text: '確認メールを再送信しました。メールをご確認ください。', type: 'success' })
-    } catch (error: any) {
-      if (error.code === 'auth/too-many-requests') {
-        setMessage({ text: 'しばらく時間をおいてから再送信してください。', type: 'error' })
-      } else {
-        setMessage({ text: 'メールの送信に失敗しました。', type: 'error' })
-      }
+    } catch (error) {
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
+
+      // 集約したエラーハンドラーを使用してメッセージを取得
+      const errorMessage = getAuthErrorMessage(err)
+      setMessage({ text: errorMessage, type: 'error' })
     } finally {
       setIsResending(false)
     }

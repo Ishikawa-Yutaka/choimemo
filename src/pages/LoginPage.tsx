@@ -14,6 +14,7 @@ import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import PasswordInput from '../components/PasswordInput'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import './LoginPage.css'
 
 /**
@@ -107,32 +108,15 @@ const LoginPage: React.FC = () => {
       // ログインに成功したらメモページ（/）へ遷移
       navigate('/', { replace: true })
     } catch (error) {
-      // エラーオブジェクトを any として受け取り、コードとメッセージを安全に参照
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
 
       // Firebaseのエラーコードを画面下部に小さく表示するために保持
       setErrorCode(err.code ?? null)
 
-      // エラーコードごとに日本語メッセージを出し分け
-      // よく使うものだけ個別対応し、それ以外は共通メッセージにする
-      switch (err.code) {
-        case 'auth/invalid-email':
-          setErrorMessage('メールアドレスの形式が正しくありません。')
-          break
-        case 'auth/user-disabled':
-          setErrorMessage('このアカウントは無効化されています。')
-          break
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          setErrorMessage(
-            'メールアドレスまたはパスワードが正しくありません。'
-          )
-          break
-        default:
-          setErrorMessage('ログインに失敗しました。時間をおいて再度お試しください。')
-          break
-      }
+      // 集約したエラーハンドラーを使用してメッセージを取得
+      const message = getAuthErrorMessage(err)
+      setErrorMessage(message)
     } finally {
       setIsSubmitting(false)
     }

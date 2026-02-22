@@ -11,6 +11,7 @@
 import React, { useState } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン
 import type { Memo } from '../types'
+import { formatDate, getPreviewText as getPreviewTextUtil } from '../lib/formatters'
 import './MemoList.css'
 
 /**
@@ -28,38 +29,17 @@ interface MemoListProps {
 }
 
 /**
- * メモの内容から最初の行（10文字程度）を取得する関数
+ * メモの内容からプレビュー用のテキストを生成する
  *
  * @param content - メモの内容
- * @returns 最初の行の10文字（または空の場合は「（空のメモ）」）
+ * @returns プレビュー用のテキスト（空の場合は「（空のメモ）」）
  */
 const getPreviewText = (content: string): string => {
   if (!content || content.trim() === '') {
     return '（空のメモ）'
   }
 
-  // 改行で分割して最初の行を取得
-  const firstLine = content.split('\n')[0]
-
-  // 最初の行が10文字以上の場合は10文字に切り詰める
-  if (firstLine.length > 10) {
-    return firstLine.substring(0, 10) + '...'
-  }
-
-  return firstLine
-}
-
-/**
- * 日付をフォーマットする関数
- *
- * @param date - Date オブジェクト
- * @returns フォーマットされた日付文字列（例: "2026/02/13"）
- */
-const formatDate = (date: Date): string => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}/${month}/${day}`
+  return getPreviewTextUtil(content)
 }
 
 /**

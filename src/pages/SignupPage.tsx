@@ -14,6 +14,7 @@ import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import PasswordInput from '../components/PasswordInput'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import './SignupPage.css'
 
 /**
@@ -106,31 +107,13 @@ const SignupPage: React.FC = () => {
       // メール確認待ち画面へ遷移（メモページへはまだ行けない）
       navigate('/verify-email', { replace: true })
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
       setErrorCode(err.code ?? null)
 
-      switch (err.code) {
-        case 'auth/email-already-in-use':
-          setErrorMessage('このメールアドレスはすでに登録されています。')
-          break
-        case 'auth/invalid-email':
-          setErrorMessage('メールアドレスの形式が正しくありません。')
-          break
-        case 'auth/operation-not-allowed':
-          setErrorMessage(
-            'メール/パスワードでの登録が有効になっていません。管理者に確認してください。'
-          )
-          break
-        case 'auth/weak-password':
-          setErrorMessage('パスワードが弱すぎます。もう少し複雑にしてください。')
-          break
-        default:
-          setErrorMessage(
-            'アカウントの作成に失敗しました。時間をおいて再度お試しください。'
-          )
-          break
-      }
+      // 集約したエラーハンドラーを使用してメッセージを取得
+      const message = getAuthErrorMessage(err)
+      setErrorMessage(message)
     } finally {
       setIsSubmitting(false)
     }

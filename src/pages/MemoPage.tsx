@@ -22,24 +22,12 @@ import { useSwipeNavigation } from '../hooks/useSwipeNavigation'
 import { useMemoData } from '../hooks/useMemoData'
 import { useMemoEditing } from '../hooks/useMemoEditing'
 import { useDeleteAccount } from '../hooks/useDeleteAccount'
+import { getCurrentDate } from '../lib/formatters'
 import { signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useNavigate } from 'react-router-dom'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import '../App.css'
-
-/**
- * 現在の日付を "YYYY/MM/DD" 形式で取得するヘルパー関数
- *
- * @returns フォーマットされた日付文字列（例: "2026/01/25"）
- */
-const getCurrentDate = (): string => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${year}/${month}/${day}`
-}
 
 /**
  * メモ編集ページを表示するコンポーネント

@@ -20,6 +20,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 import './AuthActionPage.css'
 
 /**
@@ -98,21 +99,15 @@ const AuthActionPage: React.FC = () => {
           setStatus('error')
           setErrorMessage('このリンクには対応していません。')
         }
-      } catch (error: any) {
+      } catch (error) {
         setStatus('error')
 
-        // エラーコードごとに日本語メッセージを出し分け
-        switch (error.code) {
-          case 'auth/expired-action-code':
-            setErrorMessage('リンクの有効期限が切れています。再度メールを送信してください。')
-            break
-          case 'auth/invalid-action-code':
-            setErrorMessage('リンクがすでに使用済みか、無効です。再度メールを送信してください。')
-            break
-          default:
-            setErrorMessage('処理に失敗しました。もう一度お試しください。')
-            break
-        }
+        // Firebase のエラーオブジェクトを型安全に扱う
+        const err = error as FirebaseAuthError
+
+        // 集約したエラーハンドラーを使用してメッセージを取得
+        const errorMessage = getAuthErrorMessage(err)
+        setErrorMessage(errorMessage)
       }
     }
 

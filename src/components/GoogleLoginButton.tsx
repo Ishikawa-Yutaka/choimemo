@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth } from '../lib/firebase'
+import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
 
 /**
  * GoogleLoginButtonのProps型定義
@@ -70,24 +71,13 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onError }) => {
       // ログイン成功したらメモページ（/）へ遷移
       navigate('/', { replace: true })
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
 
       const errorCode = err.code ?? null
-      let errorMessage = 'Google ログインに失敗しました。時間をおいて再度お試しください。'
 
-      // Google ログイン特有のエラーメッセージ
-      switch (err.code) {
-        case 'auth/popup-closed-by-user':
-          errorMessage = 'ログインがキャンセルされました。'
-          break
-        case 'auth/popup-blocked':
-          errorMessage = 'ポップアップがブロックされました。ブラウザの設定を確認してください。'
-          break
-        case 'auth/account-exists-with-different-credential':
-          errorMessage = 'このメールアドレスは既に別の方法で登録されています。'
-          break
-      }
+      // 集約したエラーハンドラーを使用してメッセージを取得
+      const errorMessage = getAuthErrorMessage(err)
 
       // 親コンポーネントにエラーを通知
       if (onError) {
