@@ -16,6 +16,7 @@ import Menu from '../components/Menu'
 import MemoList from '../components/MemoList'
 import DeleteProgressOverlay from '../components/DeleteProgressOverlay'
 import NavigationArrows from '../components/NavigationArrows'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { useAuth } from '../contexts/AuthContext'
 import { useMemoOperations } from '../hooks/useMemoOperations'
 import { useSwipeNavigation } from '../hooks/useSwipeNavigation'
@@ -197,40 +198,14 @@ const MemoPage: React.FC = () => {
     await createNewMemo()
   }
 
-  // データ読み込み中は「読み込み中」を表示
+  // データ読み込み中はローディングスピナーを表示
   if (loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          fontSize: '18px',
-          color: '#666',
-        }}
-      >
-        読み込み中...
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
-  // メモが存在しない場合の表示（通常は起こらない）
+  // メモが存在しない場合もローディングスピナーを表示（通常は起こらない）
   if (!currentMemo) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          fontSize: '18px',
-          color: '#666',
-        }}
-      >
-        メモが見つかりません
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   // DOMイベントハンドラーだけを抽出

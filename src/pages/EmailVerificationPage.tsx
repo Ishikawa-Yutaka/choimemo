@@ -14,6 +14,7 @@ import { Navigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import LoadingSpinner from '../components/LoadingSpinner'
 import {
   getAuthErrorMessage,
   type FirebaseAuthError,
@@ -83,9 +84,9 @@ const EmailVerificationPage: React.FC = () => {
     // navigate不要：signOut後にuserがnullになり、下の<Navigate>が自動でリダイレクト
   }
 
-  // 認証状態の確認中は何も表示しない
+  // 認証状態の確認中はローディングスピナーを表示
   if (loading) {
-    return <div className="verify-loading">読み込み中...</div>
+    return <LoadingSpinner />
   }
 
   // 未ログインならログインページへリダイレクト

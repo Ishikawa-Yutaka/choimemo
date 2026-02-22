@@ -10,6 +10,7 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import LoadingSpinner from './LoadingSpinner'
 
 /**
  * ProtectedRoute コンポーネントのProps
@@ -50,24 +51,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
    * 認証状態の確認中（loading = true）の場合
    *
    * Firebase が認証情報を確認している最中なので、
-   * 「読み込み中」画面を表示して待ちます。
+   * ローディングスピナーを表示して待ちます。
    * これをしないと、一瞬だけログインページが表示されてしまいます。
    */
   if (loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          fontSize: '18px',
-          color: '#666',
-        }}
-      >
-        読み込み中...
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   /**

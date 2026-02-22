@@ -20,6 +20,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import LoadingSpinner from '../components/LoadingSpinner'
 import {
   getAuthErrorMessage,
   type FirebaseAuthError,
@@ -117,9 +118,9 @@ const AuthActionPage: React.FC = () => {
     handleAction()
   }, [searchParams, refreshUser]) // searchParams または refreshUser が変わった時に実行
 
-  // 処理中の表示
+  // 処理中はローディングスピナーを表示
   if (status === 'loading') {
-    return <div className="auth-action-loading">処理中...</div>
+    return <LoadingSpinner />
   }
 
   // 成功時の表示
