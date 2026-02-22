@@ -20,7 +20,10 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import './AuthActionPage.css'
 
 /**
@@ -116,11 +119,7 @@ const AuthActionPage: React.FC = () => {
 
   // 処理中の表示
   if (status === 'loading') {
-    return (
-      <div className="auth-action-loading">
-        処理中...
-      </div>
-    )
+    return <div className="auth-action-loading">処理中...</div>
   }
 
   // 成功時の表示
@@ -131,19 +130,12 @@ const AuthActionPage: React.FC = () => {
 
         {/* 成功メッセージ */}
         <div className="auth-action-success">
-          <p>
-            メールアドレスの確認が完了しました
-          </p>
-          <p>
-            ちょいMEMOをお使いいただけます。
-          </p>
+          <p>メールアドレスの確認が完了しました</p>
+          <p>ちょいMEMOをお使いいただけます。</p>
         </div>
 
         {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
-        <Link
-          to="/"
-          className="auth-action-button"
-        >
+        <Link to="/" className="auth-action-button">
           ちょいMEMOを始める
         </Link>
       </div>
@@ -157,16 +149,11 @@ const AuthActionPage: React.FC = () => {
 
       {/* エラーメッセージ */}
       <div className="auth-action-error">
-        <p>
-          {errorMessage}
-        </p>
+        <p>{errorMessage}</p>
       </div>
 
       {/* メール再送信ページへのリンク */}
-      <Link
-        to="/verify-email"
-        className="auth-action-button"
-      >
+      <Link to="/verify-email" className="auth-action-button">
         確認メールを再送信する
       </Link>
 

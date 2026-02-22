@@ -98,7 +98,7 @@ export const useMemoEditing = ({
 
     // 1. まず画面表示を即座に更新（ローカルState）
     // これにより、ユーザーの入力がすぐに画面に反映される
-    setMemos((prevMemos) =>
+    setMemos(prevMemos =>
       prevMemos.map((memo, index) =>
         index === currentIndex
           ? { ...memo, content: newContent, updated_at: new Date() }

@@ -14,7 +14,10 @@ import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import PasswordInput from '../components/PasswordInput'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import './LoginPage.css'
 
 /**
@@ -122,7 +125,6 @@ const LoginPage: React.FC = () => {
     }
   }
 
-
   return (
     <div className="login-container">
       <h1 className="login-title">ログイン</h1>
@@ -149,16 +151,14 @@ const LoginPage: React.FC = () => {
             id="email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={event => setEmail(event.target.value)}
             autoComplete="email"
             placeholder="example@email.com"
             className="login-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.email && (
-            <div className="login-field-error">
-              {fieldErrors.email}
-            </div>
+            <div className="login-field-error">{fieldErrors.email}</div>
           )}
         </div>
 
@@ -174,16 +174,10 @@ const LoginPage: React.FC = () => {
 
         {/* パスワードリセットリンク（パスワードを忘れた場合） */}
         <div className="login-forgot-password">
-          <Link to="/forgot-password">
-            パスワードをお忘れですか？
-          </Link>
+          <Link to="/forgot-password">パスワードをお忘れですか？</Link>
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="login-button"
-        >
+        <button type="submit" disabled={isSubmitting} className="login-button">
           {isSubmitting ? 'ログイン中...' : 'ログイン'}
         </button>
       </form>
@@ -213,4 +207,3 @@ const LoginPage: React.FC = () => {
 }
 
 export default LoginPage
-

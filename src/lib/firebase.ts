@@ -41,12 +41,12 @@ const validateFirebaseConfig = () => {
   ]
 
   const missingKeys = requiredKeys.filter(
-    (key) => !firebaseConfig[key as keyof typeof firebaseConfig]
+    key => !firebaseConfig[key as keyof typeof firebaseConfig]
   )
 
   if (missingKeys.length > 0) {
     throw new Error(
-      `Firebase設定が不完全です。以下の環境変数を.env.localに設定してください:\n${missingKeys.map((key) => `VITE_FIREBASE_${key.toUpperCase()}`).join('\n')}`
+      `Firebase設定が不完全です。以下の環境変数を.env.localに設定してください:\n${missingKeys.map(key => `VITE_FIREBASE_${key.toUpperCase()}`).join('\n')}`
     )
   }
 }

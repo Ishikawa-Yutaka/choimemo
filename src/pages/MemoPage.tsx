@@ -46,7 +46,9 @@ const MemoPage: React.FC = () => {
 
   // スワイプ方向インジケーター（'left' | 'right' | null）
   // スワイプ時に表示される矢印の方向を管理
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(
+    null
+  )
 
   // メニューの表示/非表示を管理
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -233,7 +235,8 @@ const MemoPage: React.FC = () => {
 
   // DOMイベントハンドラーだけを抽出
   // goToPrevious, goToNext, canGoPrevious, canGoNext はNavigationArrowsに渡す
-  const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp, onMouseLeave } = swipeHandlers
+  const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp, onMouseLeave } =
+    swipeHandlers
 
   return (
     <div
@@ -315,4 +318,3 @@ const MemoPage: React.FC = () => {
 }
 
 export default MemoPage
-

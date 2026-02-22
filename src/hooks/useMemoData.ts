@@ -41,7 +41,9 @@ interface UseMemoDataReturn {
  * const { memos, setMemos, loading } = useMemoData({ userId: user?.uid })
  * ```
  */
-export const useMemoData = ({ userId }: UseMemoDataParams): UseMemoDataReturn => {
+export const useMemoData = ({
+  userId,
+}: UseMemoDataParams): UseMemoDataReturn => {
   // 全メモのリストを管理するState
   const [memos, setMemos] = useState<Memo[]>([])
 

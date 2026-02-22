@@ -11,7 +11,10 @@
 import React, { useState } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン
 import type { Memo } from '../types'
-import { formatDate, getPreviewText as getPreviewTextUtil } from '../lib/formatters'
+import {
+  formatDate,
+  getPreviewText as getPreviewTextUtil,
+} from '../lib/formatters'
 import './MemoList.css'
 
 /**
@@ -63,7 +66,7 @@ const MemoList: React.FC<MemoListProps> = ({
    * 表示件数を5件ずつ増やします
    */
   const handleShowMore = () => {
-    setVisibleCount((prevCount) => prevCount + 5)
+    setVisibleCount(prevCount => prevCount + 5)
   }
 
   // 表示するメモの配列（visibleCount件まで）
@@ -130,7 +133,7 @@ const MemoList: React.FC<MemoListProps> = ({
                   {/* 削除ボタン */}
                   <button
                     className="memo-list-item-delete"
-                    onClick={(e) => handleDeleteClick(e, index)}
+                    onClick={e => handleDeleteClick(e, index)}
                     aria-label="メモを削除"
                   >
                     <HiOutlineTrash />
@@ -140,7 +143,10 @@ const MemoList: React.FC<MemoListProps> = ({
 
               {/* 「さらに見る」ボタン */}
               {hasMore && (
-                <button className="memo-list-show-more" onClick={handleShowMore}>
+                <button
+                  className="memo-list-show-more"
+                  onClick={handleShowMore}
+                >
                   さらに見る（残り{memos.length - visibleCount}件）
                 </button>
               )}

@@ -69,7 +69,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           id={id}
           type={showPassword ? 'text' : 'password'}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={event => onChange(event.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
           className={`${classPrefix}-input`}
@@ -84,11 +84,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         </button>
       </div>
       {/* エラーメッセージ */}
-      {error && (
-        <div className={`${classPrefix}-field-error`}>
-          {error}
-        </div>
-      )}
+      {error && <div className={`${classPrefix}-field-error`}>{error}</div>}
     </div>
   )
 }

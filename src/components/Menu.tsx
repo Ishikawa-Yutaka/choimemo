@@ -84,7 +84,10 @@ const Menu: React.FC<MenuProps> = ({
           </button>
 
           {/* アカウント削除ボタン */}
-          <button className="menu-item menu-item-danger" onClick={onDeleteAccount}>
+          <button
+            className="menu-item menu-item-danger"
+            onClick={onDeleteAccount}
+          >
             <span className="menu-item-icon">
               <HiOutlineTrash />
             </span>

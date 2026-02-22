@@ -10,7 +10,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { deleteUser } from 'firebase/auth'
 import { getMemos, deleteMemo } from '../lib/database'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import type { User } from 'firebase/auth'
 
 /**
@@ -98,7 +101,9 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
       // メモが0件の場合はこのループをスキップ
       for (let i = 0; i < allMemos.length; i++) {
         // 削除開始前にメッセージだけ更新（何件目を削除中か表示）
-        setDeleteStatusMessage(`メモを削除しています... (${i + 1}/${allMemos.length})`)
+        setDeleteStatusMessage(
+          `メモを削除しています... (${i + 1}/${allMemos.length})`
+        )
 
         // 1件削除（実際にFirestoreから削除される）
         await deleteMemo(user.uid, allMemos[i].id)

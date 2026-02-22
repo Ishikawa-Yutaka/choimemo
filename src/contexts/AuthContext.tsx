@@ -6,7 +6,13 @@
  * 1箇所だけで認証状態を管理できます。
  */
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react'
 import { onAuthStateChanged, reload, User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 
@@ -83,7 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
      *
      * 返り値: 監視を解除する関数（クリーンアップ用）
      */
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, currentUser => {
       // currentUser が null なら未ログイン、User オブジェクトならログイン済み
       setUser(currentUser)
 

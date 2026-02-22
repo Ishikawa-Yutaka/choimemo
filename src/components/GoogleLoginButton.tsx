@@ -9,7 +9,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth } from '../lib/firebase'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 
 /**
  * GoogleLoginButtonのProps型定義
@@ -114,7 +117,8 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onError }) => {
         style={{
           fontWeight: 700,
           fontSize: 18,
-          background: 'linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853)',
+          background:
+            'linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
         }}

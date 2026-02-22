@@ -14,7 +14,10 @@ import { Navigate } from 'react-router-dom'
 import { sendEmailVerification, signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import './EmailVerificationPage.css'
 
 /**
@@ -30,7 +33,10 @@ const EmailVerificationPage: React.FC = () => {
   const [isResending, setIsResending] = useState(false)
 
   // 操作結果のメッセージ（成功・エラー）
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [message, setMessage] = useState<{
+    text: string
+    type: 'success' | 'error'
+  } | null>(null)
 
   /**
    * 確認メールを再送信する処理
@@ -48,7 +54,10 @@ const EmailVerificationPage: React.FC = () => {
       // 確認メールを再送信
       await sendEmailVerification(user)
 
-      setMessage({ text: '確認メールを再送信しました。メールをご確認ください。', type: 'success' })
+      setMessage({
+        text: '確認メールを再送信しました。メールをご確認ください。',
+        type: 'success',
+      })
     } catch (error) {
       // Firebase のエラーオブジェクトを型安全に扱う
       const err = error as FirebaseAuthError
@@ -76,11 +85,7 @@ const EmailVerificationPage: React.FC = () => {
 
   // 認証状態の確認中は何も表示しない
   if (loading) {
-    return (
-      <div className="verify-loading">
-        読み込み中...
-      </div>
-    )
+    return <div className="verify-loading">読み込み中...</div>
   }
 
   // 未ログインならログインページへリダイレクト
@@ -107,14 +112,17 @@ const EmailVerificationPage: React.FC = () => {
 
       {/* 迷惑メール案内 */}
       <div className="verify-notice">
-        メールが届かない場合は、<strong>迷惑メールフォルダ</strong>をご確認ください。
+        メールが届かない場合は、<strong>迷惑メールフォルダ</strong>
+        をご確認ください。
       </div>
 
       {/* 操作結果メッセージ */}
       {message && (
         <div
           className={`verify-message ${
-            message.type === 'success' ? 'verify-message-success' : 'verify-message-error'
+            message.type === 'success'
+              ? 'verify-message-success'
+              : 'verify-message-error'
           }`}
         >
           {message.text}

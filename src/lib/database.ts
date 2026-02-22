@@ -27,7 +27,12 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
-import type { Memo, MemoDocument, CreateMemoInput, UpdateMemoInput } from '../types'
+import type {
+  Memo,
+  MemoDocument,
+  CreateMemoInput,
+  UpdateMemoInput,
+} from '../types'
 
 /**
  * FirestoreのTimestampをJavaScriptのDateオブジェクトに変換する関数
@@ -64,7 +69,7 @@ export async function getMemos(userId: string): Promise<Memo[]> {
     const snapshot = await getDocs(q)
 
     // Firestoreのドキュメントを、アプリで使いやすいMemo型に変換
-    const memos: Memo[] = snapshot.docs.map((doc) => {
+    const memos: Memo[] = snapshot.docs.map(doc => {
       const data = doc.data() as MemoDocument
 
       return {

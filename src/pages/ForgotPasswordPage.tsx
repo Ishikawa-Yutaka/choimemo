@@ -14,7 +14,10 @@ import { Link } from 'react-router-dom'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import './ForgotPasswordPage.css'
 
 /**
@@ -105,7 +108,8 @@ const ForgotPasswordPage: React.FC = () => {
         <div className="forgot-password-success">
           <p>送信完了</p>
           <p>
-            <strong>{email}</strong> にパスワードリセット用のメールを送信しました。
+            <strong>{email}</strong>{' '}
+            にパスワードリセット用のメールを送信しました。
           </p>
           <p>メールが届かない場合は、迷惑メールフォルダをご確認ください。</p>
         </div>
@@ -131,25 +135,20 @@ const ForgotPasswordPage: React.FC = () => {
 
       {/* エラーメッセージ */}
       {errorMessage && (
-        <div className="forgot-password-error">
-          {errorMessage}
-        </div>
+        <div className="forgot-password-error">{errorMessage}</div>
       )}
 
       {/* メールアドレス入力フォーム */}
       <form onSubmit={handleSubmit} className="forgot-password-form">
         <div className="forgot-password-field">
-          <label
-            htmlFor="email"
-            className="forgot-password-label"
-          >
+          <label htmlFor="email" className="forgot-password-label">
             メールアドレス
           </label>
           <input
             id="email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={event => setEmail(event.target.value)}
             autoComplete="email"
             placeholder="example@email.com"
             className="forgot-password-input"

@@ -9,12 +9,18 @@
 import React, { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { z } from 'zod'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import PasswordInput from '../components/PasswordInput'
-import { getAuthErrorMessage, type FirebaseAuthError } from '../lib/errorHandlers'
+import {
+  getAuthErrorMessage,
+  type FirebaseAuthError,
+} from '../lib/errorHandlers'
 import './SignupPage.css'
 
 /**
@@ -98,7 +104,11 @@ const SignupPage: React.FC = () => {
       setErrorCode(null)
 
       // Firebase Authentication を使って新規ユーザーを作成
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
 
       // 作成したユーザーに確認メールを送信
       // ユーザーがメールのリンクをクリックすることで、メールアドレスが確認済みになる
@@ -145,16 +155,14 @@ const SignupPage: React.FC = () => {
             id="email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={event => setEmail(event.target.value)}
             autoComplete="email"
             placeholder="example@email.com"
             className="signup-input"
           />
           {/* メールアドレス入力欄の直下に、Zodのバリデーションエラーを表示 */}
           {fieldErrors.email && (
-            <div className="signup-field-error">
-              {fieldErrors.email}
-            </div>
+            <div className="signup-field-error">{fieldErrors.email}</div>
           )}
         </div>
 
@@ -168,11 +176,7 @@ const SignupPage: React.FC = () => {
           error={fieldErrors.password}
         />
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="signup-button"
-        >
+        <button type="submit" disabled={isSubmitting} className="signup-button">
           {isSubmitting ? '作成中...' : 'アカウントを作成'}
         </button>
       </form>
@@ -194,11 +198,11 @@ const SignupPage: React.FC = () => {
 
       {/* ログインページへのリンク */}
       <p className="signup-login-link">
-        すでにアカウントをお持ちの方は <Link to="/login">こちらからログイン</Link>
+        すでにアカウントをお持ちの方は{' '}
+        <Link to="/login">こちらからログイン</Link>
       </p>
     </div>
   )
 }
 
 export default SignupPage
-

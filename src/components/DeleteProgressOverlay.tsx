@@ -37,10 +37,8 @@ const DeleteProgressOverlay: React.FC<DeleteProgressOverlayProps> = ({
   return (
     // 画面全体を覆うオーバーレイ（ユーザーの操作をブロック）
     <div className="delete-progress-overlay">
-
       {/* 中央のカード */}
       <div className="delete-progress-card">
-
         {/* タイトル */}
         <h2 className="delete-progress-title">アカウントを削除しています</h2>
 
@@ -60,9 +58,7 @@ const DeleteProgressOverlay: React.FC<DeleteProgressOverlayProps> = ({
         <p className="delete-progress-percent">{progress}%</p>
 
         {/* 警告メッセージ（ブラウザを閉じないよう促す） */}
-        <p className="delete-progress-warning">
-          ブラウザを閉じないでください
-        </p>
+        <p className="delete-progress-warning">ブラウザを閉じないでください</p>
       </div>
     </div>
   )

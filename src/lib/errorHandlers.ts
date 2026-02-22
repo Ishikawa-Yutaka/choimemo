@@ -106,7 +106,12 @@ export const getAuthErrorMessage = (error: FirebaseAuthError): string => {
  * ```
  */
 export const getFallbackErrorMessage = (
-  operationType: 'signup' | 'login' | 'resetPassword' | 'emailVerification' | 'googleLogin'
+  operationType:
+    | 'signup'
+    | 'login'
+    | 'resetPassword'
+    | 'emailVerification'
+    | 'googleLogin'
 ): string => {
   switch (operationType) {
     case 'signup':
