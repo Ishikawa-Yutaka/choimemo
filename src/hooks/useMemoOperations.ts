@@ -4,9 +4,14 @@
  * メモの作成・削除などの操作ロジックをまとめたカスタムフックです。
  * MemoPageコンポーネントから操作ロジックを分離することで、
  * コードの見通しが良くなり、再利用性も高まります。
+ *
+ * パフォーマンス最適化:
+ * - useCallback で関数をメモ化しているため、依存配列の値が変わらない限り
+ *   同じ関数参照を返します
+ * - これにより、この関数を受け取るコンポーネントの不要な再レンダリングを防ぎます
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { createMemo, deleteMemo } from '../lib/database'
 import type { Memo } from '../types'
 
@@ -54,68 +59,79 @@ export function useMemoOperations({
   const [isOperating, setIsOperating] = useState(false)
 
   /**
-   * メモを削除する共通処理
+   * メモを削除する共通処理（メモ化版）
+   *
+   * useCallback でラップすることで、依存配列の値が変わらない限り
+   * 同じ関数参照を返します。これにより、この関数を props として受け取る
+   * コンポーネント（Header など）の不要な再レンダリングを防ぎます。
    *
    * @param index - 削除するメモのインデックス
    * @param skipConfirm - 確認ダイアログをスキップするかどうか（デフォルト: false）
    * @returns 削除が成功したかどうか
    */
-  const deleteMemoByIndex = async (
-    index: number,
-    _skipConfirm = false // 将来確認ダイアログ実装時に使用予定
-  ): Promise<boolean> => {
-    // 操作中は多重実行を防ぐ
-    if (isOperating) return false
+  const deleteMemoByIndex = useCallback(
+    async (
+      index: number,
+      _skipConfirm = false // 将来確認ダイアログ実装時に使用予定
+    ): Promise<boolean> => {
+      // 操作中は多重実行を防ぐ
+      if (isOperating) return false
 
-    const memoToDelete = memos[index]
-    if (!memoToDelete) return false
+      const memoToDelete = memos[index]
+      if (!memoToDelete) return false
 
-    setIsOperating(true)
+      setIsOperating(true)
 
-    try {
-      // Firestoreからメモを削除
-      await deleteMemo(userId, memoToDelete.id)
+      try {
+        // Firestoreからメモを削除
+        await deleteMemo(userId, memoToDelete.id)
 
-      // ローカルStateからも削除
-      const newMemos = memos.filter((_, i) => i !== index)
+        // ローカルStateからも削除
+        const newMemos = memos.filter((_, i) => i !== index)
 
-      if (newMemos.length === 0) {
-        // すべてのメモを削除した場合は、新しい空メモを作成
-        const newMemoId = await createMemo(userId, {
-          content: '',
-        })
-
-        setMemos([
-          {
-            id: newMemoId,
+        if (newMemos.length === 0) {
+          // すべてのメモを削除した場合は、新しい空メモを作成
+          const newMemoId = await createMemo(userId, {
             content: '',
-            created_at: new Date(),
-            updated_at: new Date(),
-          },
-        ])
-        setCurrentIndex(0)
-      } else {
-        setMemos(newMemos)
-        // メモ削除後は常に最初のメモ（インデックス0）を表示
-        setCurrentIndex(0)
-      }
+          })
 
-      return true
-    } catch (error) {
-      console.error('メモの削除に失敗しました:', error)
-      alert('メモの削除に失敗しました。もう一度お試しください。')
-      return false
-    } finally {
-      setIsOperating(false)
-    }
-  }
+          setMemos([
+            {
+              id: newMemoId,
+              content: '',
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+          ])
+          setCurrentIndex(0)
+        } else {
+          setMemos(newMemos)
+          // メモ削除後は常に最初のメモ（インデックス0）を表示
+          setCurrentIndex(0)
+        }
+
+        return true
+      } catch (error) {
+        console.error('メモの削除に失敗しました:', error)
+        alert('メモの削除に失敗しました。もう一度お試しください。')
+        return false
+      } finally {
+        setIsOperating(false)
+      }
+    },
+    [isOperating, memos, userId, setMemos, setCurrentIndex]
+  )
 
   /**
-   * 新規メモを作成する処理
+   * 新規メモを作成する処理（メモ化版）
+   *
+   * useCallback でラップすることで、依存配列の値が変わらない限り
+   * 同じ関数参照を返します。これにより、この関数を props として受け取る
+   * コンポーネント（FloatingButton など）の不要な再レンダリングを防ぎます。
    *
    * @returns 作成が成功したかどうか
    */
-  const createNewMemo = async (): Promise<boolean> => {
+  const createNewMemo = useCallback(async (): Promise<boolean> => {
     // 操作中は多重実行を防ぐ
     if (isOperating) return false
 
@@ -147,7 +163,7 @@ export function useMemoOperations({
     } finally {
       setIsOperating(false)
     }
-  }
+  }, [isOperating, userId, memos, setMemos, setCurrentIndex])
 
   return {
     /** メモを削除する関数 */

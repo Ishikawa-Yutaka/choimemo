@@ -4,9 +4,13 @@
  * PC用のメモ切り替え矢印ボタンです。
  * 画面の左右に表示され、クリックで前後のメモに移動できます。
  * タッチデバイス（スマホ・タブレット）では非表示になります。
+ *
+ * パフォーマンス最適化:
+ * - React.memo でメモ化されているため、propsが変わらない限り再レンダリングされません
+ * - メモを入力する度に再レンダリングされるのを防ぎます
  */
 
-import React from 'react'
+import React, { memo } from 'react'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import './NavigationArrows.css'
 
@@ -25,7 +29,11 @@ interface NavigationArrowsProps {
 }
 
 /**
- * ナビゲーション矢印を表示するコンポーネント
+ * ナビゲーション矢印を表示するコンポーネント（メモ化版）
+ *
+ * React.memo でラップすることで、onPrevious、onNext、canGoPrevious、canGoNext が
+ * 同じ値を保っている限り、親コンポーネント（MemoPage）が再レンダリングされても、
+ * このコンポーネントは再レンダリングされません。
  *
  * @param props - NavigationArrowsのprops
  * @returns 矢印ボタンのJSX要素
@@ -40,35 +48,35 @@ interface NavigationArrowsProps {
  * />
  * ```
  */
-const NavigationArrows: React.FC<NavigationArrowsProps> = ({
-  onPrevious,
-  onNext,
-  canGoPrevious,
-  canGoNext,
-}) => {
-  return (
-    <>
-      {/* 左矢印（前のメモへ） */}
-      <button
-        className={`nav-arrow nav-arrow-left ${!canGoPrevious ? 'nav-arrow-disabled' : ''}`}
-        onClick={onPrevious}
-        disabled={!canGoPrevious}
-        aria-label="前のメモへ"
-      >
-        <HiChevronLeft />
-      </button>
+const NavigationArrows: React.FC<NavigationArrowsProps> = memo(
+  ({ onPrevious, onNext, canGoPrevious, canGoNext }) => {
+    return (
+      <>
+        {/* 左矢印（前のメモへ） */}
+        <button
+          className={`nav-arrow nav-arrow-left ${!canGoPrevious ? 'nav-arrow-disabled' : ''}`}
+          onClick={onPrevious}
+          disabled={!canGoPrevious}
+          aria-label="前のメモへ"
+        >
+          <HiChevronLeft />
+        </button>
 
-      {/* 右矢印（次のメモへ） */}
-      <button
-        className={`nav-arrow nav-arrow-right ${!canGoNext ? 'nav-arrow-disabled' : ''}`}
-        onClick={onNext}
-        disabled={!canGoNext}
-        aria-label="次のメモへ"
-      >
-        <HiChevronRight />
-      </button>
-    </>
-  )
-}
+        {/* 右矢印（次のメモへ） */}
+        <button
+          className={`nav-arrow nav-arrow-right ${!canGoNext ? 'nav-arrow-disabled' : ''}`}
+          onClick={onNext}
+          disabled={!canGoNext}
+          aria-label="次のメモへ"
+        >
+          <HiChevronRight />
+        </button>
+      </>
+    )
+  }
+)
+
+// React DevToolsでコンポーネント名を表示するために設定
+NavigationArrows.displayName = 'NavigationArrows'
 
 export default NavigationArrows

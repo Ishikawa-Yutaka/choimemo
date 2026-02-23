@@ -3,9 +3,15 @@
  *
  * - デバウンス付き自動保存機能
  * - ローカルStateの即座更新 + Firestoreへの遅延保存
+ *
+ * パフォーマンス最適化:
+ * - useCallback で handleMemoChange をメモ化しているため、依存配列の値が変わらない限り
+ *   同じ関数参照を返します
+ * - これにより、この関数を props として受け取るコンポーネント（MemoEditor など）の
+ *   不要な再レンダリングを防ぎます
  */
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import { updateMemo } from '../lib/database'
 import type { Memo } from '../types'
 
@@ -80,7 +86,11 @@ export const useMemoEditing = ({
   }, [])
 
   /**
-   * メモの内容が変更された時の処理（デバウンス付き自動保存）
+   * メモの内容が変更された時の処理（デバウンス付き自動保存・メモ化版）
+   *
+   * useCallback でラップすることで、依存配列の値が変わらない限り
+   * 同じ関数参照を返します。これにより、この関数を props として受け取る
+   * コンポーネント（MemoEditor など）の不要な再レンダリングを防ぎます。
    *
    * @param newContent - 新しいメモの内容
    *
@@ -90,42 +100,45 @@ export const useMemoEditing = ({
    * 3. 500ms後にFirestoreに保存するタイマーをセット
    * 4. ユーザーが入力を止めて500ms経過したら、初めて保存実行
    */
-  const handleMemoChange = (newContent: string) => {
-    if (!userId) return
+  const handleMemoChange = useCallback(
+    (newContent: string) => {
+      if (!userId) return
 
-    const currentMemo = memos[currentIndex]
-    if (!currentMemo) return
+      const currentMemo = memos[currentIndex]
+      if (!currentMemo) return
 
-    // 1. まず画面表示を即座に更新（ローカルState）
-    // これにより、ユーザーの入力がすぐに画面に反映される
-    setMemos(prevMemos =>
-      prevMemos.map((memo, index) =>
-        index === currentIndex
-          ? { ...memo, content: newContent, updated_at: new Date() }
-          : memo
+      // 1. まず画面表示を即座に更新（ローカルState）
+      // これにより、ユーザーの入力がすぐに画面に反映される
+      setMemos(prevMemos =>
+        prevMemos.map((memo, index) =>
+          index === currentIndex
+            ? { ...memo, content: newContent, updated_at: new Date() }
+            : memo
+        )
       )
-    )
 
-    // 2. 前回のタイマーが残っていればキャンセル
-    // 「こ」→「こん」→「こんに」と入力された場合、
-    // 「こ」と「こん」の保存はキャンセルされる
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
-
-    // 3. 新しいタイマーをセット（500ms後に保存）
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        // 4. 500ms経過後、Firestoreに保存
-        await updateMemo(userId, currentMemo.id, {
-          content: newContent,
-        })
-        console.log('メモを自動保存しました')
-      } catch (error) {
-        console.error('メモの更新に失敗しました:', error)
+      // 2. 前回のタイマーが残っていればキャンセル
+      // 「こ」→「こん」→「こんに」と入力された場合、
+      // 「こ」と「こん」の保存はキャンセルされる
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
       }
-    }, 500) // 500ms（0.5秒）のデバウンス
-  }
+
+      // 3. 新しいタイマーをセット（500ms後に保存）
+      debounceTimerRef.current = setTimeout(async () => {
+        try {
+          // 4. 500ms経過後、Firestoreに保存
+          await updateMemo(userId, currentMemo.id, {
+            content: newContent,
+          })
+          console.log('メモを自動保存しました')
+        } catch (error) {
+          console.error('メモの更新に失敗しました:', error)
+        }
+      }, 500) // 500ms（0.5秒）のデバウンス
+    },
+    [userId, memos, currentIndex, setMemos]
+  )
 
   return {
     handleMemoChange,

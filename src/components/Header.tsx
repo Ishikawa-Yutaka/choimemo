@@ -4,9 +4,13 @@
  * アプリのトップに表示される黄色いヘッダーバー
  * - 左側: アプリ名「ちょいMEMO」
  * - 右側: ゴミ箱アイコン、メニューアイコン（3点リーダー）
+ *
+ * パフォーマンス最適化:
+ * - React.memo でメモ化されているため、propsが変わらない限り再レンダリングされません
+ * - メモを入力する度に再レンダリングされるのを防ぎます
  */
 
-import React from 'react'
+import React, { memo } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン（アウトライン版）
 import { HiOutlineDotsVertical } from 'react-icons/hi' // 縦3点メニューアイコン
 import './Header.css'
@@ -16,7 +20,14 @@ interface HeaderProps {
   onMenuClick?: () => void // メニューアイコンがクリックされた時の処理
 }
 
-const Header: React.FC<HeaderProps> = ({ onDelete, onMenuClick }) => {
+/**
+ * ヘッダーコンポーネント（メモ化版）
+ *
+ * React.memo でラップすることで、onDelete と onMenuClick が同じ参照を保っている限り
+ * 親コンポーネント（MemoPage）が再レンダリングされても、このコンポーネントは
+ * 再レンダリングされません。
+ */
+const Header: React.FC<HeaderProps> = memo(({ onDelete, onMenuClick }) => {
   return (
     <header className="header">
       {/* アプリ名 */}
@@ -44,6 +55,9 @@ const Header: React.FC<HeaderProps> = ({ onDelete, onMenuClick }) => {
       </div>
     </header>
   )
-}
+})
+
+// React DevToolsでコンポーネント名を表示するために設定
+Header.displayName = 'Header'
 
 export default Header

@@ -173,7 +173,7 @@ src/
   - プロジェクト全体でコードスタイル統一
   - 長いインポート文の複数行分割など
 
-✅ **パフォーマンス最適化**（2026-02-22）
+✅ **パフォーマンス最適化**（2026-02-22 〜 2026-02-23）
 - ルートベースのコード分割実装
   - React.lazyによる全ページコンポーネントの遅延ロード
   - 初期バンドルサイズ削減：197 KB → 173.6 KB (gzip、約12%削減)
@@ -183,6 +183,20 @@ src/
   - 共通のLoadingSpinnerコンポーネント作成
   - 全ローディング状態でスピナーアニメーション表示
   - 「読み込み中...」テキストを全て削除し、視覚的フィードバックに統一
+- ライブラリのチャンク分割（2026-02-23）
+  - vite.config.jsにmanualChunks設定を追加
+  - 最大チャンクサイズ削減：664 KB → 249 KB (gzip、約62%削減)
+  - ライブラリ別に分割：React、Firebase Auth、Firebase Firestore、Router、Vendor
+  - キャッシュ効率の大幅向上（ライブラリコードの再ダウンロード不要）
+  - 500KB超過警告の解消
+- 未使用コード削減（2026-02-23）
+  - Firebase Storage を遅延ロードに変更（Phase 2まで不要のため）
+  - schemas チャンク (58 KB) の削除を実現
+- React.memo / useCallback / useMemoによる再レンダリング最適化（2026-02-23）
+  - コンポーネントのメモ化：Header、FloatingButton、NavigationArrows、MemoEditor
+  - カスタムフックの関数メモ化：useMemoOperations、useMemoEditing
+  - MemoPageの関数・値メモ化：全ハンドラー関数、日付計算
+  - タイピング時の不要な再レンダリングを削減
 
 ✅ **デプロイ・セキュリティ**
 - Vercelへのデプロイ完了

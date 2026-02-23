@@ -5,13 +5,15 @@
  * 1. Firebaseアプリの初期化
  * 2. Authentication（認証）サービスの取得
  * 3. Firestore（データベース）サービスの取得
- * 4. Storage（ファイル保存）サービスの取得
+ *
+ * 注: Storage（ファイル保存）は Phase 2 で使用予定のため、
+ * パフォーマンス最適化のため現在はインポートしていません。
+ * 必要になった際に import { getStorage } from 'firebase/storage' を追加してください。
  */
 
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
-import { getStorage } from 'firebase/storage'
 
 /**
  * Firebase設定オブジェクト
@@ -74,9 +76,14 @@ export const db = getFirestore(app)
 
 /**
  * Storage（ファイル保存）サービス
- * 将来的に画像添付機能で使用します（Phase 2）
+ * Phase 2 で画像添付機能を実装する際に使用します。
+ *
+ * パフォーマンス最適化のため、現在はコメントアウトしています。
+ * 必要になった際に以下のコメントを解除してください：
+ *
+ * import { getStorage } from 'firebase/storage'
+ * export const storage = getStorage(app)
  */
-export const storage = getStorage(app)
 
 /**
  * Firebaseアプリインスタンス

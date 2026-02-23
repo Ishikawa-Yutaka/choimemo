@@ -6,9 +6,14 @@
  * - 現在表示中のメモを管理
  * - メモの作成・更新・削除機能
  * - 将来的にスワイプナビゲーションと自動保存を追加予定
+ *
+ * パフォーマンス最適化:
+ * - useCallback で関数をメモ化し、子コンポーネントの不要な再レンダリングを防止
+ * - useMemo で値をメモ化し、不要な再計算を防止
+ * - 子コンポーネント（Header、FloatingButton など）は React.memo でメモ化済み
  */
 
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import Header from '../components/Header'
 import MemoEditor from '../components/MemoEditor'
 import FloatingButton from '../components/FloatingButton'
@@ -91,26 +96,33 @@ const MemoPage: React.FC = () => {
   })
 
   /**
-   * インデックスが変更された時のハンドラー（矢印アニメーション付き）
+   * インデックスが変更された時のハンドラー（矢印アニメーション付き・メモ化版）
+   *
+   * useCallback でラップすることで、currentIndex が変わらない限り
+   * 同じ関数参照を返します。これにより、この関数を使う useSwipeNavigation フックの
+   * 不要な再計算を防ぎます。
    */
-  const handleIndexChange = (newIndex: number) => {
-    // スワイプ方向を設定（表示位置の管理）
-    // 左スワイプ（次のメモへ）→ 右側に表示
-    // 右スワイプ（前のメモへ）→ 左側に表示
-    if (newIndex > currentIndex) {
-      setSwipeDirection('right') // 次のメモへ（右側に表示）
-    } else if (newIndex < currentIndex) {
-      setSwipeDirection('left') // 前のメモへ（左側に表示）
-    }
+  const handleIndexChange = useCallback(
+    (newIndex: number) => {
+      // スワイプ方向を設定（表示位置の管理）
+      // 左スワイプ（次のメモへ）→ 右側に表示
+      // 右スワイプ（前のメモへ）→ 左側に表示
+      if (newIndex > currentIndex) {
+        setSwipeDirection('right') // 次のメモへ（右側に表示）
+      } else if (newIndex < currentIndex) {
+        setSwipeDirection('left') // 前のメモへ（左側に表示）
+      }
 
-    // インデックスを更新
-    setCurrentIndex(newIndex)
+      // インデックスを更新
+      setCurrentIndex(newIndex)
 
-    // アニメーション後にスワイプ方向をリセット
-    setTimeout(() => {
-      setSwipeDirection(null)
-    }, 600) // CSSのアニメーション時間（0.6s）と合わせる
-  }
+      // アニメーション後にスワイプ方向をリセット
+      setTimeout(() => {
+        setSwipeDirection(null)
+      }, 600) // CSSのアニメーション時間（0.6s）と合わせる
+    },
+    [currentIndex]
+  )
 
   /**
    * スワイプナビゲーションのカスタムフック
@@ -127,24 +139,27 @@ const MemoPage: React.FC = () => {
   const currentMemo = memos[currentIndex]
 
   /**
-   * メニューボタンがクリックされた時の処理
+   * メニューボタンがクリックされた時の処理（メモ化版）
+   *
+   * useCallback でラップすることで、依存配列が空なので常に同じ関数参照を返します。
+   * これにより、Header コンポーネントの不要な再レンダリングを防ぎます。
    */
-  const handleMenuClick = () => {
+  const handleMenuClick = useCallback(() => {
     // メニューを開く
     setIsMenuOpen(true)
-  }
+  }, [])
 
   /**
-   * メニューを閉じる処理
+   * メニューを閉じる処理（メモ化版）
    */
-  const handleMenuClose = () => {
+  const handleMenuClose = useCallback(() => {
     setIsMenuOpen(false)
-  }
+  }, [])
 
   /**
-   * ログアウト処理
+   * ログアウト処理（メモ化版）
    */
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     // ログアウトの確認ダイアログを表示
     const confirmed = window.confirm('ログアウトしますか？')
     if (!confirmed) return
@@ -159,44 +174,67 @@ const MemoPage: React.FC = () => {
       console.error('ログアウトに失敗しました:', error)
       alert('ログアウトに失敗しました。もう一度お試しください。')
     }
-  }
+  }, [navigate])
 
   /**
-   * メモ一覧リンクがクリックされた時の処理
+   * メモ一覧リンクがクリックされた時の処理（メモ化版）
    */
-  const handleMemoList = () => {
+  const handleMemoList = useCallback(() => {
     // メニューを閉じて、メモ一覧を開く
     setIsMenuOpen(false)
     setIsMemoListOpen(true)
-  }
+  }, [])
 
   /**
-   * メモ一覧を閉じる処理
+   * メモ一覧を閉じる処理（メモ化版）
    */
-  const handleMemoListClose = () => {
+  const handleMemoListClose = useCallback(() => {
     setIsMemoListOpen(false)
-  }
+  }, [])
 
   /**
-   * メモ一覧でメモがクリックされた時の処理
+   * メモ一覧でメモがクリックされた時の処理（メモ化版）
    *
    * @param index - クリックされたメモのインデックス
    */
-  const handleMemoListItemClick = (index: number) => {
+  const handleMemoListItemClick = useCallback((index: number) => {
     // クリックされたメモを表示
     setCurrentIndex(index)
     // メモ一覧を閉じる
     setIsMemoListOpen(false)
-  }
+  }, [])
 
   /**
-   * 新規メモボタンがクリックされた時の処理
+   * 新規メモボタンがクリックされた時の処理（メモ化版）
+   *
+   * useCallback でラップすることで、user と createNewMemo が変わらない限り
+   * 同じ関数参照を返します。これにより、FloatingButton コンポーネントの
+   * 不要な再レンダリングを防ぎます。
    */
-  const handleNewMemo = async () => {
+  const handleNewMemo = useCallback(async () => {
     if (!user) return
     // 新規メモを作成（カスタムフックの関数を使用）
     await createNewMemo()
-  }
+  }, [user, createNewMemo])
+
+  /**
+   * 現在の日付を useMemo でメモ化
+   *
+   * getCurrentDate() は日付が変わるまで同じ値を返すため、
+   * useMemo でメモ化することで、MemoEditor への不要な再レンダリングを防ぎます。
+   * 依存配列は空なので、コンポーネントがマウントされた時だけ計算されます。
+   */
+  const currentDate = useMemo(() => getCurrentDate(), [])
+
+  /**
+   * 現在のメモのインデックスに対する削除ハンドラー（メモ化版）
+   *
+   * useCallback でラップすることで、currentIndex と deleteMemoByIndex が変わらない限り
+   * 同じ関数参照を返します。これにより、Header コンポーネントの不要な再レンダリングを防ぎます。
+   */
+  const handleDeleteCurrentMemo = useCallback(() => {
+    deleteMemoByIndex(currentIndex)
+  }, [deleteMemoByIndex, currentIndex])
 
   // データ読み込み中はローディングスピナーを表示
   if (loading) {
@@ -223,16 +261,13 @@ const MemoPage: React.FC = () => {
       onMouseLeave={onMouseLeave}
     >
       {/* ヘッダー */}
-      <Header
-        onDelete={() => deleteMemoByIndex(currentIndex)}
-        onMenuClick={handleMenuClick}
-      />
+      <Header onDelete={handleDeleteCurrentMemo} onMenuClick={handleMenuClick} />
 
       {/* メモエディター */}
       <div className="memo-container">
         <MemoEditor
           content={currentMemo.content}
-          date={getCurrentDate()}
+          date={currentDate}
           onChange={handleMemoChange}
         />
       </div>
