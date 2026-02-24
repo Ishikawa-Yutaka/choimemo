@@ -46,6 +46,26 @@ export const formatDate = (date: Date): string => {
 }
 
 /**
+ * Dateオブジェクトを "YYYY/MM/DD" 形式（日付のみ）にフォーマットする
+ *
+ * @param date - フォーマットする日付
+ * @returns フォーマットされた日付文字列（例: "2026/01/25"）
+ *
+ * 使用例:
+ * ```typescript
+ * const date = new Date()
+ * const formatted = formatDateOnly(date)
+ * console.log(formatted) // "2026/01/25"
+ * ```
+ */
+export const formatDateOnly = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}/${month}/${day}`
+}
+
+/**
  * メモの内容からプレビュー用のテキストを生成する
  *
  * - 改行を削除してスペースに置き換え

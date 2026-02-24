@@ -90,6 +90,7 @@
   justify-content: space-between;
   align-items: center;
   flex: 1;
+  min-width: 0; /* flex子要素がコンテンツ幅以下に縮めるようにする（テキストはみ出し防止） */
   padding: 16px 20px;
   background: none;
   border: none;

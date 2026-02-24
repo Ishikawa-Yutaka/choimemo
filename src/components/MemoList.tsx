@@ -12,7 +12,7 @@ import React, { useState } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン
 import type { Memo } from '../types'
 import {
-  formatDate,
+  formatDateOnly,
   getPreviewText as getPreviewTextUtil,
 } from '../lib/formatters'
 import './MemoList.css'
@@ -126,7 +126,7 @@ const MemoList: React.FC<MemoListProps> = ({
                       {getPreviewText(memo.content)}
                     </div>
                     <div className="memo-list-item-date">
-                      {formatDate(memo.updated_at)}
+                      {formatDateOnly(memo.updated_at)}
                     </div>
                   </button>
 
