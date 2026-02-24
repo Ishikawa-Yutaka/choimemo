@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LoadingSpinner > スナップショット: コンポーネントの構造が変わっていないこと 1`] = `
+<div>
+  <div
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(255, 255, 255);"
+  >
+    <div
+      style="width: 50px; height: 50px; border-width: 4px; border-style: solid; border-color: rgb(244, 230, 184) rgb(243, 243, 243) rgb(243, 243, 243); border-image: none; border-radius: 50%; animation: spin 1s linear infinite;"
+    />
+    <style>
+      
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        
+    </style>
+  </div>
+</div>
+`;
