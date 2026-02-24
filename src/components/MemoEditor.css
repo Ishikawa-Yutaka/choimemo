@@ -44,7 +44,7 @@
   /* 文字スタイル（Adobe Fontsのヒラギノゴシック） */
   font-size: 18px;
   font-family: 'hiragino-kaku-gothic-pron', sans-serif;
-  line-height: 1.6; /* 行間を広めに */
+  line-height: 1.65; /* 行間を広めに */
   color: #333;
 
   /* 内側の余白（下部に余白を確保し、最終行が画面端に張り付かないようにする） */
