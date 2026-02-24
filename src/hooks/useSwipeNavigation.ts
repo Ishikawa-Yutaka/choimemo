@@ -8,6 +8,21 @@
 import { useRef, useEffect, useCallback } from 'react'
 
 /**
+ * イベントのターゲットがテキスト入力要素かどうかを判定する関数
+ *
+ * テキスト選択のためのドラッグ操作がスワイプと誤認されるのを防ぐために使用。
+ * textarea や input 内でのドラッグ・タッチはスワイプとして処理しない。
+ *
+ * @param target - 判定したい要素（event.target や document.activeElement）
+ * @returns テキスト入力要素（textarea, input）の場合は true
+ */
+const isTextInputElement = (target: EventTarget | null): boolean => {
+  if (!target || !(target instanceof HTMLElement)) return false
+  const tagName = target.tagName.toLowerCase()
+  return tagName === 'textarea' || tagName === 'input'
+}
+
+/**
  * useSwipeNavigationフックの引数
  */
 interface UseSwipeNavigationProps {
@@ -50,6 +65,9 @@ export function useSwipeNavigation({
   // タッチスワイプの開始位置（X座標）
   const touchStartXRef = useRef<number>(0)
 
+  // タッチスワイプが有効かどうか（テキスト入力要素以外で開始された場合にtrue）
+  const isTouchActiveRef = useRef<boolean>(false)
+
   // マウスドラッグの開始位置（X座標）
   const mouseStartXRef = useRef<number>(0)
 
@@ -81,9 +99,20 @@ export function useSwipeNavigation({
 
   /**
    * タッチ開始時の処理（スマホ・タブレット）
+   *
+   * テキスト入力要素（textarea, input）内でのタッチはスワイプとして扱わない。
+   * テキスト選択のドラッグがスワイプと誤認されるのを防ぐため。
    */
   const handleTouchStart = (event: React.TouchEvent) => {
     if (disabled) return
+
+    // テキスト入力要素内でのタッチはスワイプ無効
+    if (isTextInputElement(event.target)) {
+      isTouchActiveRef.current = false
+      return
+    }
+
+    isTouchActiveRef.current = true
     touchStartXRef.current = event.touches[0].clientX
   }
 
@@ -91,7 +120,7 @@ export function useSwipeNavigation({
    * タッチ終了時の処理（スマホ・タブレット）
    */
   const handleTouchEnd = (event: React.TouchEvent) => {
-    if (disabled) return
+    if (disabled || !isTouchActiveRef.current) return
 
     const touchEndX = event.changedTouches[0].clientX
     const diffX = touchEndX - touchStartXRef.current
@@ -103,13 +132,22 @@ export function useSwipeNavigation({
       // 左スワイプ → 次のメモへ
       goToNext()
     }
+
+    isTouchActiveRef.current = false
   }
 
   /**
    * マウスドラッグ開始時の処理（PC）
+   *
+   * テキスト入力要素（textarea, input）内でのドラッグはスワイプとして扱わない。
+   * テキスト選択のドラッグがスワイプと誤認されるのを防ぐため。
    */
   const handleMouseDown = (event: React.MouseEvent) => {
     if (disabled) return
+
+    // テキスト入力要素内でのドラッグはスワイプ無効
+    if (isTextInputElement(event.target)) return
+
     isDraggingRef.current = true
     mouseStartXRef.current = event.clientX
   }
@@ -147,6 +185,9 @@ export function useSwipeNavigation({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (disabled) return
+
+      // テキスト入力中は矢印キーでメモ切り替えしない（カーソル移動を優先）
+      if (isTextInputElement(document.activeElement)) return
 
       if (e.key === 'ArrowLeft') {
         // 左矢印キー → 前のメモへ
