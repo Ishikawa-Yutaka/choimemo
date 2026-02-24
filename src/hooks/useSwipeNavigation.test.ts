@@ -168,18 +168,19 @@ describe('useSwipeNavigation', () => {
         })
       )
 
-      // タッチ開始（X座標100で開始）
+      // タッチ開始（X座標100, Y座標200で開始）
       act(() => {
         result.current.onTouchStart({
-          touches: [{ clientX: 100 }],
-        } as React.TouchEvent)
+          touches: [{ clientX: 100, clientY: 200 }],
+        } as unknown as React.TouchEvent)
       })
 
-      // タッチ終了（X座標200で終了 = 右に100px移動）
+      // タッチ終了（X座標200で終了 = 右に100px移動、Y座標は変化なし = 横スワイプ）
       act(() => {
         result.current.onTouchEnd({
-          changedTouches: [{ clientX: 200 }],
-        } as React.TouchEvent)
+          changedTouches: [{ clientX: 200, clientY: 200 }],
+          target: document.createElement('div'),
+        } as unknown as React.TouchEvent)
       })
 
       // 検証: 前のメモへ移動（2 → 1）
@@ -197,18 +198,19 @@ describe('useSwipeNavigation', () => {
         })
       )
 
-      // タッチ開始（X座標200で開始）
+      // タッチ開始（X座標200, Y座標200で開始）
       act(() => {
         result.current.onTouchStart({
-          touches: [{ clientX: 200 }],
-        } as React.TouchEvent)
+          touches: [{ clientX: 200, clientY: 200 }],
+        } as unknown as React.TouchEvent)
       })
 
-      // タッチ終了（X座標100で終了 = 左に100px移動）
+      // タッチ終了（X座標100で終了 = 左に100px移動、Y座標は変化なし = 横スワイプ）
       act(() => {
         result.current.onTouchEnd({
-          changedTouches: [{ clientX: 100 }],
-        } as React.TouchEvent)
+          changedTouches: [{ clientX: 100, clientY: 200 }],
+          target: document.createElement('div'),
+        } as unknown as React.TouchEvent)
       })
 
       // 検証: 次のメモへ移動（2 → 3）
@@ -226,18 +228,19 @@ describe('useSwipeNavigation', () => {
         })
       )
 
-      // タッチ開始（X座標100で開始）
+      // タッチ開始（X座標100, Y座標200で開始）
       act(() => {
         result.current.onTouchStart({
-          touches: [{ clientX: 100 }],
-        } as React.TouchEvent)
+          touches: [{ clientX: 100, clientY: 200 }],
+        } as unknown as React.TouchEvent)
       })
 
-      // タッチ終了（X座標130で終了 = 右に30px移動、最低距離50pxに満たない）
+      // タッチ終了（X座標120で終了 = 右に20px移動、最低距離30pxに満たない）
       act(() => {
         result.current.onTouchEnd({
-          changedTouches: [{ clientX: 130 }],
-        } as React.TouchEvent)
+          changedTouches: [{ clientX: 120, clientY: 200 }],
+          target: document.createElement('div'),
+        } as unknown as React.TouchEvent)
       })
 
       // 検証: 移動しない
@@ -489,14 +492,15 @@ describe('useSwipeNavigation', () => {
 
       act(() => {
         result.current.onTouchStart({
-          touches: [{ clientX: 100 }],
-        } as React.TouchEvent)
+          touches: [{ clientX: 100, clientY: 200 }],
+        } as unknown as React.TouchEvent)
       })
 
       act(() => {
         result.current.onTouchEnd({
-          changedTouches: [{ clientX: 200 }],
-        } as React.TouchEvent)
+          changedTouches: [{ clientX: 200, clientY: 200 }],
+          target: document.createElement('div'),
+        } as unknown as React.TouchEvent)
       })
 
       expect(onIndexChange).not.toHaveBeenCalled()

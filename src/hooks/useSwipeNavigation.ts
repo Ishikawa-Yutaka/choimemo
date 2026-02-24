@@ -65,8 +65,11 @@ export function useSwipeNavigation({
   // タッチスワイプの開始位置（X座標）
   const touchStartXRef = useRef<number>(0)
 
-  // タッチスワイプが有効かどうか（テキスト入力要素以外で開始された場合にtrue）
-  const isTouchActiveRef = useRef<boolean>(false)
+  // タッチスワイプの開始位置（Y座標、縦スクロールとの区別に使用）
+  const touchStartYRef = useRef<number>(0)
+
+  // タッチスワイプの開始時刻（素早いスワイプかどうかの判定に使用）
+  const touchStartTimeRef = useRef<number>(0)
 
   // マウスドラッグの開始位置（X座標）
   const mouseStartXRef = useRef<number>(0)
@@ -74,8 +77,15 @@ export function useSwipeNavigation({
   // マウスドラッグ中かどうか
   const isDraggingRef = useRef<boolean>(false)
 
-  // 最低限のスワイプ距離（px）
-  const MIN_SWIPE_DISTANCE = 50
+  // タッチスワイプの最低距離（px）- 少しのスワイプで反応するように短めに設定
+  const TOUCH_MIN_SWIPE_DISTANCE = 30
+
+  // マウスドラッグの最低距離（px）
+  const MOUSE_MIN_SWIPE_DISTANCE = 50
+
+  // テキストエリア上でスワイプと判定する最大時間（ミリ秒）
+  // これより速いジェスチャーはスワイプ、遅いものはテキスト選択と判定
+  const SWIPE_MAX_DURATION = 300
 
   /**
    * 前のメモへ移動
@@ -100,40 +110,57 @@ export function useSwipeNavigation({
   /**
    * タッチ開始時の処理（スマホ・タブレット）
    *
-   * テキスト入力要素（textarea, input）内でのタッチはスワイプとして扱わない。
-   * テキスト選択のドラッグがスワイプと誤認されるのを防ぐため。
+   * 開始位置と時刻を記録する。テキストエリア上でも記録する（終了時に判定するため）。
    */
   const handleTouchStart = (event: React.TouchEvent) => {
     if (disabled) return
 
-    // テキスト入力要素内でのタッチはスワイプ無効
-    if (isTextInputElement(event.target)) {
-      isTouchActiveRef.current = false
-      return
-    }
-
-    isTouchActiveRef.current = true
     touchStartXRef.current = event.touches[0].clientX
+    touchStartYRef.current = event.touches[0].clientY
+    touchStartTimeRef.current = Date.now()
   }
 
   /**
    * タッチ終了時の処理（スマホ・タブレット）
+   *
+   * スワイプかテキスト選択かを以下の条件で判定する:
+   * - 横方向の移動が縦方向より大きい（横スワイプである）
+   * - 横方向の移動がしきい値以上（誤タップ防止）
+   * - テキストエリア上の場合: 素早いジェスチャーのみスワイプと判定
+   *   （ゆっくりのドラッグはテキスト選択と判定）
    */
   const handleTouchEnd = (event: React.TouchEvent) => {
-    if (disabled || !isTouchActiveRef.current) return
+    if (disabled) return
 
     const touchEndX = event.changedTouches[0].clientX
+    const touchEndY = event.changedTouches[0].clientY
     const diffX = touchEndX - touchStartXRef.current
+    const diffY = touchEndY - touchStartYRef.current
+    const duration = Date.now() - touchStartTimeRef.current
 
-    if (diffX > MIN_SWIPE_DISTANCE) {
-      // 右スワイプ → 前のメモへ
-      goToPrevious()
-    } else if (diffX < -MIN_SWIPE_DISTANCE) {
-      // 左スワイプ → 次のメモへ
-      goToNext()
+    const absDiffX = Math.abs(diffX)
+    const absDiffY = Math.abs(diffY)
+
+    // 横方向の移動が縦方向より大きいかどうか（縦スクロールとの区別）
+    const isHorizontal = absDiffX > absDiffY
+
+    // テキスト入力要素上では、素早いジェスチャーのみスワイプとして扱う
+    // ゆっくりのドラッグはテキスト選択と判定して無視
+    const isOnTextInput = isTextInputElement(event.target)
+    const isFastGesture = duration < SWIPE_MAX_DURATION
+
+    if (isOnTextInput && !isFastGesture) return
+
+    // スワイプ判定: 横方向かつしきい値以上の移動
+    if (isHorizontal && absDiffX > TOUCH_MIN_SWIPE_DISTANCE) {
+      if (diffX > 0) {
+        // 右スワイプ → 前のメモへ
+        goToPrevious()
+      } else {
+        // 左スワイプ → 次のメモへ
+        goToNext()
+      }
     }
-
-    isTouchActiveRef.current = false
   }
 
   /**
@@ -161,10 +188,10 @@ export function useSwipeNavigation({
     const mouseEndX = event.clientX
     const diffX = mouseEndX - mouseStartXRef.current
 
-    if (diffX > MIN_SWIPE_DISTANCE) {
+    if (diffX > MOUSE_MIN_SWIPE_DISTANCE) {
       // 右ドラッグ → 前のメモへ
       goToPrevious()
-    } else if (diffX < -MIN_SWIPE_DISTANCE) {
+    } else if (diffX < -MOUSE_MIN_SWIPE_DISTANCE) {
       // 左ドラッグ → 次のメモへ
       goToNext()
     }
