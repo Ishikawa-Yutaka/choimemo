@@ -4,12 +4,10 @@
  */
 
 .header {
-  /* 画面上部に固定 */
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100; /* 他の要素の上に表示 */
+  /* flexレイアウトの一部として上部に配置（fixedではなく通常フロー） */
+  /* position: fixed を使わないことで、テキストがヘッダーの裏に入り込む問題を防ぐ */
+  z-index: 100; /* メニューなど他の要素より上に表示 */
+  flex-shrink: 0; /* ヘッダーが縮まないようにする */
 
   /* 背景色: 黄色（デザインに合わせた色） */
   background-color: #f4e6b8;

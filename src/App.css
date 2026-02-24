@@ -8,6 +8,7 @@
   /* 画面全体を使う */
   width: 100%;
   height: 100vh; /* vh = viewport height（画面の高さ） */
+  height: 100dvh; /* dvh = dynamic viewport height（モバイルでアドレスバーの表示/非表示に追従） */
 
   /* Flexboxで縦方向に配置 */
   display: flex;
@@ -27,8 +28,13 @@
 /* メモコンテナ */
 .memo-container {
   flex: 1;
-  /* ヘッダーが固定されているので、その分の余白を確保 */
-  padding-top: 52px;
+
+  /* flexの子要素がコンテンツサイズ以下に縮めるようにする */
+  /* これがないとテキストが多い時にコンテナがはみ出す */
+  min-height: 0;
+
+  /* コンテナ内のスクロールを制御（textareaが独自にスクロールする） */
+  overflow: hidden;
 }
 
 /* スワイプ方向インジケーター（矢印アニメーション） */
