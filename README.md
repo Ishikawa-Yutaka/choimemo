@@ -5,10 +5,12 @@
 ## 技術スタック
 
 - React 18
+- TypeScript
 - Vite
 - Firebase (Authentication, Firestore, Cloud Storage)
 - React Router
 - Vercel (デプロイ)
+- Vitest + React Testing Library (テスト)
 
 ## 開発環境のセットアップ
 
@@ -24,6 +26,12 @@ npm run build
 
 # プレビュー
 npm run preview
+
+# テスト
+npm run test          # テストを監視モードで実行
+npm run test:run      # テストを1回実行
+npm run test:ui       # テストUIを起動
+npm run test:coverage # カバレッジレポートを生成
 ```
 
 ## Firebase設定
@@ -116,10 +124,14 @@ npm run preview
 src/
 ├── components/     # 再利用可能なコンポーネント
 ├── pages/          # ページコンポーネント
-├── lib/            # Firebase設定、データベース抽象化レイヤー
+├── lib/            # Firebase設定、データベース抽象化レイヤー、ユーティリティ関数
 ├── hooks/          # カスタムフック
 ├── contexts/       # React Context（認証状態管理など）
+├── test/           # テストのグローバル設定
 └── styles/         # スタイルファイル
+
+# テストファイルは対象ファイルと同じディレクトリに配置
+# 例: src/lib/formatters.ts → src/lib/formatters.test.ts
 ```
 
 ## 開発進捗
@@ -197,6 +209,22 @@ src/
   - カスタムフックの関数メモ化：useMemoOperations、useMemoEditing
   - MemoPageの関数・値メモ化：全ハンドラー関数、日付計算
   - タイピング時の不要な再レンダリングを削減
+
+✅ **テストインフラ構築**（2026-02-24）
+- Vitest + React Testing Library環境構築完了
+  - jsdom環境でのブラウザAPI対応
+  - カバレッジ設定（v8プロバイダー）
+  - グローバルテスト設定とクリーンアップ処理
+- ユニットテスト作成完了（全73テスト）
+  - **Phase 1**: ユーティリティ関数（33テスト）
+    - formatters.test.ts: 日付・テキストフォーマット（12テスト）
+    - errorHandlers.test.ts: Firebase認証エラーハンドリング（21テスト）
+  - **Phase 2**: カスタムフック（40テスト）
+    - useMemoOperations.test.ts: メモ操作ロジック（10テスト）
+    - useMemoEditing.test.ts: デバウンス付き自動保存（8テスト）
+    - useSwipeNavigation.test.ts: スワイプナビゲーション（22テスト）
+- テストカバレッジ: コアロジックの重要部分を網羅
+- テスト実行時間: 833ms（高速）
 
 ✅ **デプロイ・セキュリティ**
 - Vercelへのデプロイ完了
