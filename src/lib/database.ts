@@ -24,8 +24,10 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  onSnapshot,
   Timestamp,
 } from 'firebase/firestore'
+import type { Unsubscribe } from 'firebase/firestore'
 import { db } from './firebase'
 import type {
   Memo,
@@ -86,6 +88,75 @@ export async function getMemos(userId: string): Promise<Memo[]> {
     console.error('メモの取得に失敗しました:', error)
     throw new Error('メモの取得に失敗しました')
   }
+}
+
+/**
+ * ユーザーのメモをリアルタイムで監視する関数
+ *
+ * Firestoreの onSnapshot を使い、データが変更されるたびに
+ * コールバック関数（onUpdate）が自動で呼び出されます。
+ * 別のデバイスでメモを編集した場合も、リアルタイムに反映されます。
+ *
+ * @param userId - 監視したいユーザーのID
+ * @param onUpdate - データ変更時に呼ばれるコールバック関数（メモ配列を受け取る）
+ * @param onError - エラー発生時に呼ばれるコールバック関数（省略可）
+ * @returns リスナー解除関数（コンポーネントのクリーンアップ時に呼ぶ）
+ *
+ * 使用例:
+ * ```typescript
+ * const unsubscribe = subscribeToMemos(
+ *   user.uid,
+ *   (memos) => setMemos(memos),
+ *   (error) => console.error(error)
+ * )
+ * // クリーンアップ時にリスナーを解除
+ * unsubscribe()
+ * ```
+ */
+export function subscribeToMemos(
+  userId: string,
+  onUpdate: (memos: Memo[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  // Firestoreのコレクション参照を取得
+  const memosRef = collection(db, `users/${userId}/memos`)
+
+  // クエリを作成（updated_atで降順ソート = 最近編集・作成されたメモが先）
+  const q = query(memosRef, orderBy('updated_at', 'desc'))
+
+  // onSnapshot でリアルタイムリスナーを開始
+  // データが変更されるたびにコールバックが呼ばれる
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      // Firestoreのドキュメントを、アプリで使いやすいMemo型に変換
+      const memos: Memo[] = snapshot.docs.map(doc => {
+        const data = doc.data() as MemoDocument
+
+        return {
+          id: doc.id,
+          content: data.content,
+          imageUrls: data.imageUrls,
+          // serverTimestamp() がまだサーバーで確定していない場合、
+          // Timestampがnullになる可能性があるため、fallbackに new Date() を使用
+          created_at: data.created_at
+            ? convertTimestampToDate(data.created_at)
+            : new Date(),
+          updated_at: data.updated_at
+            ? convertTimestampToDate(data.updated_at)
+            : new Date(),
+        }
+      })
+
+      onUpdate(memos)
+    },
+    (error) => {
+      console.error('メモのリアルタイム同期に失敗しました:', error)
+      if (onError) {
+        onError(new Error('メモのリアルタイム同期に失敗しました'))
+      }
+    }
+  )
 }
 
 /**
