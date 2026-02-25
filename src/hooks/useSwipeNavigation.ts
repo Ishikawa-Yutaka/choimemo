@@ -235,32 +235,38 @@ export function useSwipeNavigation({
   /**
    * 横スワイプ時にブラウザのデフォルト動作（戻るジェスチャー等）を防止
    *
-   * touchmove中に横方向の移動を検知したら preventDefault() を呼ぶことで、
-   * iOS Safariの画面端スワイプによるページ遷移を防ぐ。
+   * touchstart/touchmoveをネイティブリスナーで直接登録することで、
+   * Reactの合成イベントよりも早くタッチ座標を記録し、
+   * 横スワイプを即座にpreventDefault()でブロックする。
    *
-   * Reactの合成イベントではなく、addEventListener で { passive: false } を
-   * 指定する必要がある（passiveリスナーでは preventDefault が無効なため）。
+   * { passive: false } を指定しないと preventDefault() が無効になるため必須。
    */
   useEffect(() => {
+    // ネイティブtouchstartで座標を記録（Reactの合成イベントより確実に早い）
+    const handleNativeTouchStart = (e: TouchEvent) => {
+      touchStartXRef.current = e.touches[0].clientX
+      touchStartYRef.current = e.touches[0].clientY
+    }
+
     const handleTouchMove = (e: TouchEvent) => {
       if (disabled) return
-      // touchStartの記録がない場合はスキップ
-      if (touchStartXRef.current === 0 && touchStartYRef.current === 0) return
 
       const diffX = Math.abs(e.touches[0].clientX - touchStartXRef.current)
       const diffY = Math.abs(e.touches[0].clientY - touchStartYRef.current)
 
-      // 横方向の移動が縦方向より大きい場合、ブラウザのデフォルト動作を防止
-      if (diffX > diffY && diffX > 10) {
+      // 横方向の移動が縦方向より大きい場合、即座にブラウザのデフォルト動作を防止
+      // 閾値なしで即ブロックすることで、iOS Safariの戻るジェスチャーを確実に防ぐ
+      if (diffX > diffY) {
         e.preventDefault()
       }
     }
 
-    // { passive: false } を指定しないと preventDefault() が効かない
-    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+    document.addEventListener('touchstart', handleNativeTouchStart, { passive: true })
+    document.addEventListener('touchmove', handleTouchMove, { passive: false })
 
     return () => {
-      window.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchstart', handleNativeTouchStart)
+      document.removeEventListener('touchmove', handleTouchMove)
     }
   }, [disabled])
 
