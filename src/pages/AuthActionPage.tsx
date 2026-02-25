@@ -16,7 +16,7 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { applyActionCode } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -48,7 +48,10 @@ const AuthActionPage: React.FC = () => {
 
   // AuthContext の refreshUser を取得
   // reload() 後に React の State を更新するために使用
-  const { refreshUser } = useAuth()
+  const { user, refreshUser } = useAuth()
+
+  // ページ遷移に使用（replace: true で履歴を残さない）
+  const navigate = useNavigate()
 
   // 処理の状態を管理（loading → success または error）
   const [status, setStatus] = useState<Status>('loading')
@@ -65,6 +68,14 @@ const AuthActionPage: React.FC = () => {
      */
     const mode = searchParams.get('mode')
     const oobCode = searchParams.get('oobCode')
+
+    // 既にメール確認済みのユーザーがこのページにアクセスした場合
+    // （ブラウザの戻るジェスチャー等で再アクセスされるケース）
+    // エラーを表示せずメモページにリダイレクト
+    if (user?.emailVerified) {
+      navigate('/', { replace: true })
+      return
+    }
 
     // oobCode がない場合は不正なURLなのでエラー
     if (!oobCode) {
@@ -97,7 +108,10 @@ const AuthActionPage: React.FC = () => {
            */
           await refreshUser()
 
-          setStatus('success')
+          // メモページに遷移（replace: true で /__/auth/action を履歴に残さない）
+          // これにより、スワイプで戻ってもこのページに戻ってこない
+          navigate('/', { replace: true })
+          return
         } else {
           // 未対応の mode の場合はエラー
           setStatus('error')
@@ -116,7 +130,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams, refreshUser]) // searchParams または refreshUser が変わった時に実行
+  }, [searchParams, refreshUser, navigate, user]) // searchParams, refreshUser, navigate, user が変わった時に実行
 
   // 処理中はローディングスピナーを表示
   if (status === 'loading') {
