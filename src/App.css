@@ -23,6 +23,10 @@
   /* 背景色を設定 */
   background-color: #ffffff;
 
+  /* 横方向のタッチ操作はJSで処理するため、ブラウザに任せない */
+  /* これにより、iOS Safariの「エッジスワイプで戻る」ジェスチャーを防止 */
+  touch-action: pan-y;
+
   /* スワイプ時のユーザー選択を無効化（見た目の改善） */
   user-select: none;
   -webkit-user-select: none;
