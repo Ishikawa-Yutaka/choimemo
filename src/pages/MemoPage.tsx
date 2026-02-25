@@ -13,7 +13,7 @@
  * - 子コンポーネント（Header、FloatingButton など）は React.memo でメモ化済み
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import Header from '../components/Header'
 import MemoEditor from '../components/MemoEditor'
 import FloatingButton from '../components/FloatingButton'
@@ -61,24 +61,6 @@ const MemoPage: React.FC = () => {
 
   // メモ一覧の表示/非表示を管理
   const [isMemoListOpen, setIsMemoListOpen] = useState(false)
-
-  /**
-   * ブラウザの「戻る」ナビゲーションを防止
-   *
-   * iOS Safariの画面端スワイプなど、ブラウザの戻るジェスチャーが
-   * 発動した場合に、ページ遷移させずに現在のページに留まる。
-   * popstateイベントを検知して、履歴を再度pushすることで戻るを無効化。
-   */
-  useEffect(() => {
-    window.history.pushState(null, '', window.location.href)
-
-    const handlePopState = () => {
-      window.history.pushState(null, '', window.location.href)
-    }
-
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
 
   /**
    * メモデータの取得と初期化を管理するカスタムフック

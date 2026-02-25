@@ -232,6 +232,38 @@ export function useSwipeNavigation({
     }
   }, [goToPrevious, goToNext, disabled])
 
+  /**
+   * 横スワイプ時にブラウザのデフォルト動作（戻るジェスチャー等）を防止
+   *
+   * touchmove中に横方向の移動を検知したら preventDefault() を呼ぶことで、
+   * iOS Safariの画面端スワイプによるページ遷移を防ぐ。
+   *
+   * Reactの合成イベントではなく、addEventListener で { passive: false } を
+   * 指定する必要がある（passiveリスナーでは preventDefault が無効なため）。
+   */
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (disabled) return
+      // touchStartの記録がない場合はスキップ
+      if (touchStartXRef.current === 0 && touchStartYRef.current === 0) return
+
+      const diffX = Math.abs(e.touches[0].clientX - touchStartXRef.current)
+      const diffY = Math.abs(e.touches[0].clientY - touchStartYRef.current)
+
+      // 横方向の移動が縦方向より大きい場合、ブラウザのデフォルト動作を防止
+      if (diffX > diffY && diffX > 10) {
+        e.preventDefault()
+      }
+    }
+
+    // { passive: false } を指定しないと preventDefault() が効かない
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [disabled])
+
   return {
     // タッチイベントハンドラー（スマホ・タブレット）
     onTouchStart: handleTouchStart,
