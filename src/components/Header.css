@@ -17,13 +17,13 @@
   justify-content: space-between; /* 左右に分ける */
   align-items: center; /* 縦方向で中央揃え */
 
-  /* 余白 */
+  /* 余白（コンパクトにしてテキスト入力エリアを確保） */
   padding: 12px 16px;
 }
 
 /* アプリロゴのスタイル */
 .header-logo {
-  height: 28px;
+  height: 24px;
   width: auto;
 }
 
@@ -40,9 +40,9 @@
   border: none;
   cursor: pointer; /* ホバー時にポインターカーソルを表示 */
 
-  /* アイコンサイズを26pxに設定 */
-  font-size: 26px;
-  padding: 4px;
+  /* アイコンサイズを22pxに設定 */
+  font-size: 22px;
+  padding: 2px;
 
   /* アイコンを中央に配置 */
   display: flex;
