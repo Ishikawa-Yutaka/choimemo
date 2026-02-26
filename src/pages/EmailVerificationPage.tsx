@@ -19,6 +19,7 @@ import {
   getAuthErrorMessage,
   type FirebaseAuthError,
 } from '../lib/errorHandlers'
+import logo from '../assets/logo.png'
 import './EmailVerificationPage.css'
 
 /**
@@ -101,6 +102,7 @@ const EmailVerificationPage: React.FC = () => {
 
   return (
     <div className="verify-container">
+      <img src={logo} alt="ちょいMEMO" className="verify-logo" />
       <h1 className="verify-title">メールを確認してください</h1>
 
       {/* 説明文 */}

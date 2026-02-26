@@ -25,6 +25,7 @@ import {
   getAuthErrorMessage,
   type FirebaseAuthError,
 } from '../lib/errorHandlers'
+import logo from '../assets/logo.png'
 import './AuthActionPage.css'
 
 /**
@@ -141,6 +142,7 @@ const AuthActionPage: React.FC = () => {
   if (status === 'success') {
     return (
       <div className="auth-action-container">
+        <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
         <h1 className="auth-action-title">アカウントが作成されました！</h1>
 
         {/* 成功メッセージ */}
@@ -160,6 +162,7 @@ const AuthActionPage: React.FC = () => {
   // エラー時の表示
   return (
     <div className="auth-action-container">
+      <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
       <h1 className="auth-action-title">エラーが発生しました</h1>
 
       {/* エラーメッセージ */}

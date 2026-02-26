@@ -18,6 +18,7 @@ import {
   getAuthErrorMessage,
   type FirebaseAuthError,
 } from '../lib/errorHandlers'
+import logo from '../assets/logo.png'
 import './ForgotPasswordPage.css'
 
 /**
@@ -102,6 +103,7 @@ const ForgotPasswordPage: React.FC = () => {
   if (isSent) {
     return (
       <div className="forgot-password-container">
+        <img src={logo} alt="ちょいMEMO" className="forgot-password-logo" />
         <h1 className="forgot-password-title">メールを送信しました</h1>
 
         {/* 送信完了メッセージ */}
@@ -125,7 +127,8 @@ const ForgotPasswordPage: React.FC = () => {
   // メール入力フォームの画面
   return (
     <div className="forgot-password-container">
-      <h1 className="forgot-password-title">パスワードをお忘れですか？</h1>
+      <img src={logo} alt="ちょいMEMO" className="forgot-password-logo" />
+      <h1 className="forgot-password-title">パスワードをリセット</h1>
 
       {/* 説明文 */}
       <p className="forgot-password-description">

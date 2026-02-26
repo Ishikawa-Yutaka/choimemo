@@ -203,7 +203,7 @@ const LoginPage: React.FC = () => {
       {/* サインアップへのリンク */}
       <p className="login-signup-link">
         アカウントをお持ちでない方は{' '}
-        <Link to="/signup">こちらから新規登録</Link>
+        <Link to="/signup">新規登録はこちら</Link>
       </p>
     </div>
   )

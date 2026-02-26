@@ -19,9 +19,21 @@
   margin: 0 auto;
 }
 
+/* ロゴ画像 */
+.verify-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+  margin: 16px auto 16px;
+}
+
 /* タイトル */
 .verify-title {
   margin-bottom: 8px;
+  font-size: 20px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
 }
 
 /* 説明文 */
@@ -30,13 +42,15 @@
   color: #555;
   margin-bottom: 8px;
   line-height: 1.7;
+  text-align: center;
 }
 
 .verify-description-last {
   font-size: 14px;
   color: #555;
   margin-bottom: 12px;
-  line-height: 1.7;
+  line-height: 1.6;
+  text-align: center;
 }
 
 /* 迷惑メール案内 */
@@ -73,18 +87,19 @@
 .verify-resend-button {
   width: 100%;
   padding: 10px 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 9999px;
-  border: 1px solid #ccc;
+  border: none;
   cursor: pointer;
-  background-color: white;
-  color: #555;
+  background-color: #63c2c7;
+  color: #fff;
   margin-bottom: 24px;
 }
 
 .verify-resend-button:disabled {
   cursor: not-allowed;
+  background-color: #ccc;
 }
 
 /* ログアウトリンク */

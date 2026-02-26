@@ -114,7 +114,7 @@
   border: none;
   cursor: pointer;
   color: #999;
-  font-size: 20px;
+  font-size: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +140,7 @@
 
 /* メモの更新日時 */
 .memo-list-item-date {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
   margin-left: 12px;
   white-space: nowrap;
