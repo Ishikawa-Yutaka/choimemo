@@ -6,19 +6,19 @@
 .floating-button {
   /* 画面に固定 */
   position: fixed;
-  bottom: 24px; /* 下から24pxの位置 */
-  right: 24px; /* 右から24pxの位置 */
+  bottom: 8vw;
+  right: 8vw;
 
   /* ボタンのサイズ */
-  width: 56px;
+  width: 58px;
   height: 56px;
 
   /* 丸くする */
   border-radius: 50%; /* 50%で完全な円になる */
 
-  /* 背景と枠線 */
-  background-color: #ffffff;
-  border: 2px solid #ddd;
+  /* 背景（ティールカラー） */
+  background-color: #63c2c7;
+  border: none;
 
   /* 影をつけて浮いている感じを出す */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -56,23 +56,39 @@
 /* プラスアイコンのスタイル */
 .floating-button-icon {
   font-size: 28px; /* react-iconsのサイズ */
-  color: #666;
+  color: #fff;
   line-height: 1;
 
   /* アイコンの位置を微調整 */
   display: block;
 }
 
-/* モバイル対応: 小さい画面では少し小さめにする */
+/* モバイル対応: 小さい画面 */
 @media screen and (max-width: 480px) {
   .floating-button {
-    width: 48px;
-    height: 48px;
-    bottom: 20px;
-    right: 20px;
+    width: 58px;
+    height: 56px;
+    bottom: 8vw;
+    right: 8vw;
   }
+}
 
-  .floating-button-icon {
-    font-size: 28px;
+/* タブレット対応 */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .floating-button {
+    width: 58px;
+    height: 56px;
+    bottom: 8vw;
+    right: 8vw;
+  }
+}
+
+/* PC対応 */
+@media screen and (min-width: 769px) {
+  .floating-button {
+    width: 58px;
+    height: 56px;
+    bottom: 8vw;
+    right: 8vw;
   }
 }

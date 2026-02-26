@@ -21,6 +21,7 @@ import {
   getAuthErrorMessage,
   type FirebaseAuthError,
 } from '../lib/errorHandlers'
+import logo from '../assets/logo.png'
 import './SignupPage.css'
 
 /**
@@ -131,6 +132,8 @@ const SignupPage: React.FC = () => {
 
   return (
     <div className="signup-container">
+      {/* アプリロゴ */}
+      <img src={logo} alt="ちょいMEMO" className="signup-logo" />
       <h1 className="signup-title">アカウント作成</h1>
 
       {/* エラーメッセージ（日本語） */}

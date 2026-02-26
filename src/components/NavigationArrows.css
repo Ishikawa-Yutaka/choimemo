@@ -9,7 +9,7 @@
   transform: translateY(-50%);
   width: 48px;
   height: 48px;
-  background-color: rgba(250, 204, 21, 0.9);
+  background-color: rgba(99, 194, 199, 0.9);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -38,7 +38,7 @@
 }
 
 .nav-arrow:hover:not(:disabled) {
-  background-color: rgba(251, 191, 36, 1);
+  background-color: rgba(83, 176, 181, 1);
   transform: translateY(-50%) scale(1.1);
 }
 
@@ -88,12 +88,12 @@
 /* ダークモード用のスタイル */
 @media (prefers-color-scheme: dark) {
   .nav-arrow {
-    background-color: rgba(250, 204, 21, 0.8);
+    background-color: rgba(99, 194, 199, 0.8);
     color: #111;
   }
 
   .nav-arrow:hover:not(:disabled) {
-    background-color: rgba(251, 191, 36, 0.9);
+    background-color: rgba(83, 176, 181, 0.9);
   }
 
   .nav-arrow-disabled {

@@ -23,7 +23,7 @@
   bottom: 0;
   max-width: 600px;
   margin: 0 auto;
-  background-color: white;
+  background-color: #fff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   display: flex;
@@ -38,14 +38,14 @@
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid #e0e0e0;
-  background-color: #facc15;
+  background-color: #fefef3;
 }
 
 .memo-list-title {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #222;
+  color: #63c2c7;
 }
 
 .memo-list-close-button {
@@ -53,7 +53,7 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #222;
+  color: #333;
   padding: 4px 8px;
   line-height: 1;
 }
@@ -152,18 +152,18 @@
   width: calc(100% - 40px);
   margin: 16px 20px;
   padding: 12px;
-  background-color: #facc15;
+  background-color: #63c2c7;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #222;
+  color: #fff;
   transition: background-color 0.2s;
 }
 
 .memo-list-show-more:hover {
-  background-color: #fbbf24;
+  background-color: #53b0b5;
 }
 
 /* フェードインアニメーション */
@@ -186,27 +186,3 @@
   }
 }
 
-/* ダークモード用のスタイル */
-@media (prefers-color-scheme: dark) {
-  .memo-list-container {
-    background-color: #1e1e1e;
-  }
-
-  .memo-list-title,
-  .memo-list-close-button,
-  .memo-list-item-preview {
-    color: #ffffff;
-  }
-
-  .memo-list-header {
-    border-bottom-color: #333;
-  }
-
-  .memo-list-item {
-    border-bottom-color: #333;
-  }
-
-  .memo-list-item:hover {
-    background-color: #2a2a2a;
-  }
-}

@@ -67,7 +67,7 @@
 /* プログレスバーの中身（進捗に応じて幅が変わる） */
 .delete-progress-bar-fill {
   height: 100%;
-  background-color: #facc15; /* アプリのテーマカラー（黄色） */
+  background-color: #63c2c7; /* アプリのテーマカラー（ティール） */
   border-radius: 6px;
 
   /* 幅が変わるときのアニメーション */

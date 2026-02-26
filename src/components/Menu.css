@@ -22,7 +22,8 @@
   bottom: 0;
   width: 300px;
   max-width: 80vw;
-  background-color: white;
+  background-color: #fff;
+  color: #333;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
   z-index: 1001;
   display: flex;
@@ -35,16 +36,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #facc15;
+  padding: 20px 20px 12px;
+  background-color: #fefef3;
 }
 
 .menu-title {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #222;
+  color: #63c2c7;
 }
 
 .menu-close-button {
@@ -52,7 +52,7 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #222;
+  color: #333;
   padding: 4px 8px;
   line-height: 1;
 }
@@ -61,16 +61,15 @@
   opacity: 0.7;
 }
 
-/* ログイン中のユーザー情報表示エリア */
+/* ログイン中のユーザー情報表示エリア（ヘッダーに含める） */
 .menu-user-info {
-  padding: 16px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #f9f9f9;
+  padding: 0 20px 20px;
+  background-color: #fefef3;
 }
 
 .menu-user-email {
   font-size: 13px;
-  color: #666;
+  color: #63c2c7;
   word-break: break-all;
 }
 
@@ -143,36 +142,3 @@
   }
 }
 
-/* ダークモード用のスタイル */
-@media (prefers-color-scheme: dark) {
-  .menu-container {
-    background-color: #1e1e1e;
-  }
-
-  .menu-title,
-  .menu-close-button,
-  .menu-item {
-    color: #ffffff;
-  }
-
-  .menu-header {
-    border-bottom-color: #333;
-  }
-
-  .menu-user-info {
-    background-color: #2a2a2a;
-    border-bottom-color: #333;
-  }
-
-  .menu-user-email {
-    color: #aaa;
-  }
-
-  .menu-item:hover {
-    background-color: #2a2a2a;
-  }
-
-  .menu-item-danger:hover {
-    background-color: #3a1f1f;
-  }
-}

@@ -9,6 +9,14 @@
   margin: 0 auto;
 }
 
+/* ロゴ画像 */
+.signup-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  margin: 0 auto 16px;
+}
+
 /* タイトル */
 .signup-title {
   margin-bottom: 16px;
@@ -74,8 +82,8 @@
   border-radius: 9999px;
   border: none;
   cursor: pointer;
-  background-color: #facc15;
-  color: #222;
+  background-color: #63c2c7;
+  color: #fff;
   margin-top: 16px;
 }
 

@@ -9,11 +9,11 @@
   display: flex;
   flex-direction: column; /* 縦方向に並べる */
 
-  /* 背景色 */
-  background-color: #ffffff;
+  /* 背景色: 白 */
+  background-color: #fff;
 
   /* 内側の余白 */
-  padding: 16px;
+  padding: 0 16px 16px 16px;
 }
 
 /* 日付表示のスタイル */
@@ -22,7 +22,7 @@
   text-align: right;
 
   /* 文字スタイル */
-  font-size: 14px;
+  font-size: 13px;
   color: #999; /* グレー */
 
   /* 下に少し隙間 */

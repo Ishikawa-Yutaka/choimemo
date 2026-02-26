@@ -18,6 +18,7 @@ import {
   getAuthErrorMessage,
   type FirebaseAuthError,
 } from '../lib/errorHandlers'
+import logo from '../assets/logo.png'
 import './LoginPage.css'
 
 /**
@@ -127,6 +128,8 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="login-container">
+      {/* アプリロゴ */}
+      <img src={logo} alt="ちょいMEMO" className="login-logo" />
       <h1 className="login-title">ログイン</h1>
 
       {/* エラーメッセージ（日本語） */}

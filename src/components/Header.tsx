@@ -13,6 +13,7 @@
 import React, { memo } from 'react'
 import { HiOutlineTrash } from 'react-icons/hi2' // ゴミ箱アイコン（アウトライン版）
 import { HiOutlineDotsVertical } from 'react-icons/hi' // 縦3点メニューアイコン
+import logo from '../assets/logo.png'
 import './Header.css'
 
 interface HeaderProps {
@@ -30,8 +31,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = memo(({ onDelete, onMenuClick }) => {
   return (
     <header className="header">
-      {/* アプリ名 */}
-      <h1 className="header-title">ちょいMEMO</h1>
+      {/* アプリロゴ */}
+      <img src={logo} alt="ちょいMEMO" className="header-logo" />
 
       {/* 右側のアクションボタン群 */}
       <div className="header-actions">

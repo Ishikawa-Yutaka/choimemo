@@ -9,8 +9,8 @@
   z-index: 100; /* メニューなど他の要素より上に表示 */
   flex-shrink: 0; /* ヘッダーが縮まないようにする */
 
-  /* 背景色: 黄色（デザインに合わせた色） */
-  background-color: #f4e6b8;
+  /* 背景色: クリーム（本体背景と統一） */
+  background-color: #fefef3;
 
   /* Flexboxで左右に要素を配置 */
   display: flex;
@@ -19,17 +19,12 @@
 
   /* 余白 */
   padding: 12px 16px;
-
-  /* 影をつけて立体感を出す */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* アプリ名のスタイル */
-.header-title {
-  font-size: 18px;
-  font-weight: 500;
-  margin: 0;
-  color: #333;
+/* アプリロゴのスタイル */
+.header-logo {
+  height: 28px;
+  width: auto;
 }
 
 /* 右側のボタン群のコンテナ */
