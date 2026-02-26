@@ -4,22 +4,35 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ユーザーのメモコレクションへのアクセス制御
-    // ログインしたユーザーは自分のメモだけ読み書き可能
+    // 各操作（read, create, update, delete）を明確に分離して定義
     match /users/{userId}/memos/{memoId} {
-      // ログインしている かつ 自分のデータの場合のみ許可
-      allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // メモ作成時のバリデーション
+      // 読み取り: ログイン済み かつ 自分のメモのみ
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // 作成: バリデーション付き
+      // - ログイン済み
+      // - 自分のユーザーIDのパス
+      // - contentが文字列型
+      // - contentが10,000文字以内
       allow create: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.content is string
                     && request.resource.data.content.size() <= 10000;
 
-      // メモ更新時のバリデーション
+      // 更新: バリデーション付き
+      // - ログイン済み
+      // - 自分のメモ
+      // - contentが文字列型
+      // - contentが10,000文字以内
       allow update: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.content is string
                     && request.resource.data.content.size() <= 10000;
+
+      // 削除: ログイン済み かつ 自分のメモのみ
+      // 将来的に削除条件を追加する場合はここに記述
+      allow delete: if request.auth != null && request.auth.uid == userId;
     }
 
     // その他すべてのパスへのアクセスを拒否

@@ -1,9 +1,142 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+
+    /**
+     * VitePWA: PWA（Progressive Web App）化プラグイン
+     * スマホのホーム画面にアプリとしてインストール可能にする
+     */
+    VitePWA({
+      // 新しいService Workerが見つかったら自動更新（ユーザー操作不要）
+      registerType: 'autoUpdate',
+
+      /**
+       * Web App Manifest: ホーム画面追加時のアプリ情報
+       * アプリ名、アイコン、テーマカラーなどを定義
+       */
+      manifest: {
+        name: 'ちょいMEMO',
+        short_name: 'ちょいMEMO',
+        description: 'サッとメモ、パッと確認。',
+        theme_color: '#fefef3',
+        background_color: '#fefef3',
+        display: 'standalone',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
+
+      /**
+       * Workbox設定: Service Workerのキャッシュ戦略
+       *
+       * アプリ更新時に古いキャッシュが残らないよう、リソースタイプごとに
+       * 適切なキャッシュ戦略を設定する
+       */
+      workbox: {
+        // 新しいSWをすぐにアクティブ化（待機状態をスキップ）
+        skipWaiting: true,
+        // アクティブ化したSWがすぐに全タブを制御
+        clientsClaim: true,
+        // 古いバージョンのキャッシュを自動削除
+        cleanupOutdatedCaches: true,
+
+        /**
+         * runtimeCaching: リソースタイプごとのキャッシュ戦略
+         *
+         * 戦略の種類:
+         * - NetworkFirst: ネットワーク優先（オフライン時のみキャッシュ使用）
+         * - StaleWhileRevalidate: キャッシュを即返しつつ裏で最新を取得
+         * - CacheFirst: キャッシュ優先（期限付き）
+         * - NetworkOnly: 常にネットワーク経由（キャッシュしない）
+         */
+        runtimeCaching: [
+          {
+            // HTMLページ: 常に最新を取得、オフライン時のみキャッシュ使用
+            urlPattern: /\/$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24, // 1日
+              },
+            },
+          },
+          {
+            // JS/CSSファイル: キャッシュを即返しつつ裏で最新を取得
+            // ※ビルド時にファイル名にハッシュが付くため、更新時は新URLになる
+            urlPattern: /\.(?:js|css)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30日
+              },
+            },
+          },
+          {
+            // 画像ファイル: キャッシュ優先（変更頻度が低いため）
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30日
+              },
+            },
+          },
+          {
+            // Adobe Fonts (Typekit): キャッシュを即返しつつ裏で更新
+            urlPattern: /^https:\/\/use\.typekit\.net\//,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'adobe-fonts',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30日
+              },
+            },
+          },
+          {
+            // Firebase API: リアルタイムデータは常にネットワーク経由
+            urlPattern:
+              /^https:\/\/firestore\.googleapis\.com\//,
+            handler: 'NetworkOnly',
+          },
+          {
+            // Firebase Auth API: 認証も常にネットワーク経由
+            urlPattern:
+              /^https:\/\/identitytoolkit\.googleapis\.com\//,
+            handler: 'NetworkOnly',
+          },
+        ],
+      },
+    }),
+  ],
   build: {
     rollupOptions: {
       output: {
