@@ -95,6 +95,11 @@
   background-color: #63c2c7;
   color: #fff;
   margin-bottom: 24px;
+  transition: background-color 0.3s;
+}
+
+.verify-resend-button:hover:not(:disabled) {
+  background-color: #53b0b5;
 }
 
 .verify-resend-button:disabled {

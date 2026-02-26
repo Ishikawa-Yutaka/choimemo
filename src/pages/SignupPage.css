@@ -68,8 +68,13 @@
   font-size: 14px;
   line-height: 1.6;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1.5px solid #ddd;
   box-sizing: border-box;
+}
+
+.signup-input:focus {
+  outline: none;
+  border-color: #63c2c7;
 }
 
 .signup-input::placeholder {
@@ -95,6 +100,11 @@
   background-color: #63c2c7;
   color: #fff;
   margin-top: 16px;
+  transition: background-color 0.3s;
+}
+
+.signup-button:hover:not(:disabled) {
+  background-color: #53b0b5;
 }
 
 .signup-button:disabled {

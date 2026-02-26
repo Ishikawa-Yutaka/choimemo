@@ -28,7 +28,7 @@ const LoadingSpinner: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#fefef3',
       }}
     >
       {/* 回転するスピナー */}
@@ -37,7 +37,7 @@ const LoadingSpinner: React.FC = () => {
           width: '50px',
           height: '50px',
           border: '4px solid #f3f3f3',
-          borderTop: '4px solid #f4e6b8', // アプリのテーマカラー（黄色）
+          borderTop: '4px solid #63c2c7', // アプリのテーマカラー（ティール）
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
         }}

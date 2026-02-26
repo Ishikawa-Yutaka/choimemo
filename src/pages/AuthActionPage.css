@@ -99,8 +99,12 @@
   margin-bottom: 12px;
 }
 
+.auth-action-button {
+  transition: background-color 0.3s;
+}
+
 .auth-action-button:hover {
-  opacity: 0.9;
+  background-color: #53b0b5;
 }
 
 /* ログインページへ戻るリンクのテキスト */
