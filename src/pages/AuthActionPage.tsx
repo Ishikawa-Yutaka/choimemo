@@ -73,9 +73,11 @@ const AuthActionPage: React.FC = () => {
   // 例: ?mode=verifyEmail&oobCode=xxx から mode と oobCode を取得
   const [searchParams] = useSearchParams()
 
-  // AuthContext の refreshUser を取得
-  // reload() 後に React の State を更新するために使用
-  const { user, refreshUser } = useAuth()
+  // AuthContext から認証状態を取得
+  // authLoading: Firebase Auth の初期化が完了したかどうか（true = まだ初期化中）
+  // user: ログイン中のユーザー（初期化完了前は null）
+  // refreshUser: reload() 後に React の State を更新するために使用
+  const { user, loading: authLoading, refreshUser } = useAuth()
 
   // ページ遷移に使用（replace: true で履歴を残さない）
   const navigate = useNavigate()
@@ -97,6 +99,21 @@ const AuthActionPage: React.FC = () => {
   }>({})
 
   useEffect(() => {
+    /**
+     * Firebase Auth の初期化完了を待ってからアクションを実行する
+     *
+     * 【なぜ待つ必要があるか】
+     * ページ読み込み直後は Firebase Auth がまだ初期化中で、
+     * auth.currentUser が null になっている。
+     * この状態で applyActionCode → refreshUser() を実行すると、
+     * refreshUser() 内の auth.currentUser が null のため空振りし、
+     * emailVerified がクライアント側で更新されない。
+     *
+     * authLoading が false になるのを待つことで、
+     * auth.currentUser が確実に利用可能な状態でアクションを実行できる。
+     */
+    if (authLoading) return
+
     /**
      * URLパラメータを取得して処理を実行
      *
@@ -142,6 +159,9 @@ const AuthActionPage: React.FC = () => {
            * applyActionCode() だけでは emailVerified はまだ false のまま。
            * refreshUser() は reload() + setUser() を行うことで、
            * ProtectedRoute が emailVerified: true を認識できるようになる。
+           *
+           * authLoading 完了を待ってから実行しているため、
+           * auth.currentUser が確実に存在し、空振りしない。
            */
           await refreshUser()
 
@@ -181,7 +201,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams, refreshUser, navigate, user]) // searchParams, refreshUser, navigate, user が変わった時に実行
+  }, [searchParams, refreshUser, navigate, user, authLoading]) // authLoading を追加して初期化完了時に再実行
 
   /**
    * パスワードリセットフォームの送信処理

@@ -128,7 +128,7 @@ const ForgotPasswordPage: React.FC = () => {
   return (
     <div className="forgot-password-container">
       <img src={logo} alt="ちょいMEMO" className="forgot-password-logo" />
-      <h1 className="forgot-password-title">パスワードをリセット</h1>
+      <h1 className="forgot-password-title">パスワードの再設定</h1>
 
       {/* 説明文 */}
       <p className="forgot-password-description">

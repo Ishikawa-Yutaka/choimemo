@@ -11,8 +11,14 @@
  * - 初期バンドルサイズを削減し、必要なページのみ動的に読み込む
  */
 
-import React, { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import React, { lazy, Suspense, useEffect } from 'react'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoadingSpinner from './components/LoadingSpinner'
 
@@ -33,6 +39,26 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'))
 const AuthActionPage = lazy(() => import('./pages/AuthActionPage'))
 const MemoPage = lazy(() => import('./pages/MemoPage'))
+
+/**
+ * ページ遷移時にビューポート（スクロール位置）をリセットするコンポーネント
+ *
+ * MemoPageは position: fixed で画面全体を固定しているため、
+ * MemoPageからログインページ等に遷移した際に、ビューポートの位置が
+ * ずれたまま残り、上部のロゴやタイトルが隠れる問題を防ぐ。
+ *
+ * useLocation を使って現在のURLを監視し、
+ * URLが変わるたびにスクロール位置を (0, 0) にリセットする。
+ */
+const ScrollReset: React.FC = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
+  return null
+}
 
 /**
  * アプリ全体のルーティングを定義するコンポーネント
@@ -57,6 +83,8 @@ const MemoPage = lazy(() => import('./pages/MemoPage'))
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+      {/* ページ遷移時にスクロール位置をリセット */}
+      <ScrollReset />
       {/* Suspense で全ルートを囲む（遅延ロードされるページの読み込み中の表示を管理） */}
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
