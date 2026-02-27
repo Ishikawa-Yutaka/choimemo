@@ -51,16 +51,26 @@ export default defineConfig({
       /**
        * Workbox設定: Service Workerのキャッシュ戦略
        *
-       * アプリ更新時に古いキャッシュが残らないよう、リソースタイプごとに
-       * 適切なキャッシュ戦略を設定する
+       * 【重要】プリキャッシュ（ビルドファイルの先読みキャッシュ）は無効化し、
+       * ランタイムキャッシュのみを使用する。
+       *
+       * 理由:
+       * プリキャッシュを有効にすると、デプロイ後もSWが古いファイルを
+       * 返し続け、アプリが更新されない問題が発生するため。
+       * ランタイムキャッシュなら、HTMLは常にネットワークから最新を取得し、
+       * デプロイ後すぐに新しいコードが反映される。
        */
       workbox: {
+        // プリキャッシュを無効化（古いファイルが残る問題を防ぐ）
+        globPatterns: [],
         // 新しいSWをすぐにアクティブ化（待機状態をスキップ）
         skipWaiting: true,
         // アクティブ化したSWがすぐに全タブを制御
         clientsClaim: true,
         // 古いバージョンのキャッシュを自動削除
         cleanupOutdatedCaches: true,
+        // プリキャッシュ無効時はナビゲーションフォールバック不要
+        navigateFallback: null,
 
         /**
          * runtimeCaching: リソースタイプごとのキャッシュ戦略
@@ -73,8 +83,9 @@ export default defineConfig({
          */
         runtimeCaching: [
           {
-            // HTMLページ: 常に最新を取得、オフライン時のみキャッシュ使用
-            urlPattern: /\/$/,
+            // HTMLページ（ナビゲーション）: 常にネットワークから最新を取得
+            // デプロイ後すぐに新しいHTMLが反映される
+            urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'html-cache',
