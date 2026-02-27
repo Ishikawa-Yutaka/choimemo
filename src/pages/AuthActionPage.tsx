@@ -5,7 +5,7 @@
  * このページに遷移します。
  *
  * URLの形式:
- * https://choimemo.vercel.app/__/auth/action?mode=verifyEmail&oobCode=xxx
+ * https://choimemo.com/__/auth/action?mode=verifyEmail&oobCode=xxx
  *
  * URLパラメータ:
  * - mode      : 操作の種類（verifyEmail / resetPassword など）

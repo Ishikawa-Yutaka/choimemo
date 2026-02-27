@@ -11,7 +11,7 @@
      ↓
 ③ Firebaseがメールを生成・送信
    リンクURL例:
-   https://choimemo.vercel.app/__/auth/action?mode=verifyEmail&oobCode=ABC123xyz...
+   https://choimemo.com/__/auth/action?mode=verifyEmail&oobCode=ABC123xyz...
      ↓
 ④ ユーザーがリンクをクリック
      ↓
@@ -35,7 +35,7 @@
 Firebaseが確認メールのリンクに自動で付けるパラメータ。
 
 ```
-https://choimemo.vercel.app/__/auth/action?mode=verifyEmail&oobCode=ABC123xyz
+https://choimemo.com/__/auth/action?mode=verifyEmail&oobCode=ABC123xyz
                                             ↑               ↑
                                            mode           oobCode
 ```
@@ -122,11 +122,11 @@ try {
 2. 「メールアドレスの確認」タブを選択
 3. 鉛筆アイコン（編集）をクリック
 4. **「操作 URL をカスタマイズ」** をクリック
-5. `https://choimemo.vercel.app` を入力して保存
+5. `https://choimemo.com` を入力して保存
 
 設定後のリンクURL：
 ```
-https://choimemo.vercel.app/__/auth/action?mode=verifyEmail&oobCode=xxx
+https://choimemo.com/__/auth/action?mode=verifyEmail&oobCode=xxx
 ```
 
 ---

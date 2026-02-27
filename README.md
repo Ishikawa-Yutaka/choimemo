@@ -88,7 +88,7 @@ npm run test:coverage # カバレッジレポートを生成
 
 ✅ **本番環境デプロイ済み**
 
-- **URL**: https://choimemo.vercel.app （実際のURLに置き換え）
+- **URL**: https://choimemo.com
 - **デプロイ日**: 2026-02-13
 - **自動デプロイ**: mainブランチへのpush時に自動デプロイ
 
