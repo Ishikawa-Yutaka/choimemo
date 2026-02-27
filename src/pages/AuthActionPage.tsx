@@ -169,33 +169,22 @@ const AuthActionPage: React.FC = () => {
           /**
            * メール確認成功後の遷移
            *
-           * window.location.replace() でフルリロード遷移する。
-           * React Router の navigate() ではなくフルリロードを使う理由:
+           * refreshUser() で React の State を直接更新してから
+           * navigate() で SPA 遷移する。
            *
-           * navigate() → React の状態更新（emailVerified = true）が
-           * 処理される前に ProtectedRoute が描画され、古い状態を参照してしまう。
-           * フルリロードなら Firebase Auth が最初から初期化し直すため、
-           * 最新の emailVerified = true が確実に反映される。
+           * 【なぜ window.location.replace() ではなく navigate() を使うか】
+           * window.location.replace() はフルリロードとなり、Firebase が
+           * IndexedDB から古い状態（emailVerified: false）でユーザーを復元してしまう。
+           * refreshUser() で React の State を直接更新すれば、
+           * ProtectedRoute が最新の emailVerified: true を参照できる。
+           *
+           * 【refreshUser() の役割】
+           * 1. reload() : Firebase サーバーから最新の emailVerified を取得
+           * 2. setUser() : React の State を更新して再レンダリングをトリガー
            */
           if (auth.currentUser) {
-            // reload() でサーバーから最新のユーザー情報を取得する。
-            //
-            // 【なぜ reload() が必要か】
-            // applyActionCode() はサーバー上の emailVerified を true にするが、
-            // クライアント側の User オブジェクトと IndexedDB の永続化データは
-            // 自動では更新されない。
-            // reload() を呼ぶことで:
-            // 1. auth.currentUser.emailVerified が true に更新される
-            // 2. IndexedDB に永続化されたユーザー情報も最新になる
-            //
-            // 【getIdToken(true) だけでは不十分な理由】
-            // getIdToken(true) は ID トークン（JWT）を更新するが、
-            // IndexedDB のユーザープロフィール（emailVerified 等）は更新しない。
-            // フルリロード後、Firebase は IndexedDB からユーザーを復元するため、
-            // reload() で IndexedDB のデータを更新しておく必要がある。
-            await auth.currentUser.reload()
-            await auth.currentUser.getIdToken(true)
-            window.location.replace('/')
+            await refreshUser()
+            navigate('/', { replace: true })
           } else {
             // 未ログイン（別ブラウザで開いた等）: 成功ページを表示
             setStatus('success')
