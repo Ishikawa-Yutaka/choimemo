@@ -12,14 +12,22 @@
  * - oobCode   : Firebaseが発行したワンタイムコード（1回限り有効）
  *
  * 対応する操作:
- * - verifyEmail  : メールアドレスの確認（アカウント作成完了）
+ * - verifyEmail    : メールアドレスの確認（アカウント作成完了）
+ * - resetPassword  : パスワードのリセット（新しいパスワードを設定）
  */
 
 import React, { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
-import { applyActionCode } from 'firebase/auth'
+import {
+  applyActionCode,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
+} from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { z } from 'zod'
+import PasswordInput from '../components/PasswordInput'
 import LoadingSpinner from '../components/LoadingSpinner'
 import {
   getAuthErrorMessage,
@@ -31,11 +39,29 @@ import './AuthActionPage.css'
 /**
  * 処理の状態を表す型
  *
- * - loading  : 処理中
- * - success  : 処理成功
- * - error    : 処理失敗
+ * - loading    : 処理中（oobCode の検証中）
+ * - success    : 処理成功（メール確認完了）
+ * - error      : 処理失敗
+ * - resetForm  : パスワードリセットフォームを表示
+ * - resetDone  : パスワードリセット完了
  */
-type Status = 'loading' | 'success' | 'error'
+type Status = 'loading' | 'success' | 'error' | 'resetForm' | 'resetDone'
+
+/**
+ * パスワードリセットのバリデーションスキーマ（Zod）
+ *
+ * - パスワード: 6文字以上（Firebase の最低要件）
+ * - 確認用パスワード: 一致するかチェック
+ */
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, 'パスワードは6文字以上で入力してください'),
+    confirmPassword: z.string().min(1, '確認用パスワードを入力してください'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'パスワードが一致しません',
+    path: ['confirmPassword'],
+  })
 
 /**
  * Firebase メール操作を処理するコンポーネント
@@ -54,32 +80,42 @@ const AuthActionPage: React.FC = () => {
   // ページ遷移に使用（replace: true で履歴を残さない）
   const navigate = useNavigate()
 
-  // 処理の状態を管理（loading → success または error）
+  // 処理の状態を管理（loading → success / error / resetForm）
   const [status, setStatus] = useState<Status>('loading')
 
   // エラーメッセージを管理
   const [errorMessage, setErrorMessage] = useState('')
 
+  // --- パスワードリセット用のState ---
+  const [oobCode, setOobCode] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<{
+    password?: string
+    confirmPassword?: string
+  }>({})
+
   useEffect(() => {
     /**
      * URLパラメータを取得して処理を実行
      *
-     * mode    : 操作の種類（verifyEmail など）
+     * mode    : 操作の種類（verifyEmail / resetPassword）
      * oobCode : Firebaseが発行したワンタイムコード
      */
     const mode = searchParams.get('mode')
-    const oobCode = searchParams.get('oobCode')
+    const code = searchParams.get('oobCode')
 
-    // 既にメール確認済みのユーザーがこのページにアクセスした場合
+    // 既にメール確認済みのユーザーが verifyEmail モードでアクセスした場合
     // （ブラウザの戻るジェスチャー等で再アクセスされるケース）
     // エラーを表示せずメモページにリダイレクト
-    if (user?.emailVerified) {
+    if (mode === 'verifyEmail' && user?.emailVerified) {
       navigate('/', { replace: true })
       return
     }
 
     // oobCode がない場合は不正なURLなのでエラー
-    if (!oobCode) {
+    if (!code) {
       setStatus('error')
       setErrorMessage('無効なリンクです。')
       return
@@ -98,7 +134,7 @@ const AuthActionPage: React.FC = () => {
            *
            * 確認OKなら Firebase サーバー上の emailVerified が true になる
            */
-          await applyActionCode(auth, oobCode)
+          await applyActionCode(auth, code)
 
           /**
            * refreshUser() : Firebase から最新情報を取得し React の State も更新
@@ -113,6 +149,20 @@ const AuthActionPage: React.FC = () => {
           // これにより、スワイプで戻ってもこのページに戻ってこない
           navigate('/', { replace: true })
           return
+        } else if (mode === 'resetPassword') {
+          /**
+           * verifyPasswordResetCode() : oobCode が有効かどうかを検証
+           *
+           * リンクが期限切れや使用済みでないか確認する。
+           * 有効であれば、パスワード入力フォームを表示する。
+           */
+          await verifyPasswordResetCode(auth, code)
+
+          // oobCode を保存して、フォーム送信時に使えるようにする
+          setOobCode(code)
+
+          // パスワードリセットフォームを表示
+          setStatus('resetForm')
         } else {
           // 未対応の mode の場合はエラー
           setStatus('error')
@@ -133,12 +183,137 @@ const AuthActionPage: React.FC = () => {
     handleAction()
   }, [searchParams, refreshUser, navigate, user]) // searchParams, refreshUser, navigate, user が変わった時に実行
 
+  /**
+   * パスワードリセットフォームの送信処理
+   *
+   * @param event - フォーム送信イベント
+   */
+  const handleResetSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    // デフォルトのフォーム送信（ページリロード）を防ぐ
+    event.preventDefault()
+
+    // Zodでバリデーション
+    const result = resetPasswordSchema.safeParse({
+      password: newPassword,
+      confirmPassword,
+    })
+
+    if (!result.success) {
+      // バリデーションエラーがある場合はエラーメッセージを表示
+      const formErrors = result.error.flatten().fieldErrors
+      setFieldErrors({
+        password: formErrors.password?.[0],
+        confirmPassword: formErrors.confirmPassword?.[0],
+      })
+      return
+    }
+
+    // バリデーション通過、エラーをクリア
+    setFieldErrors({})
+    setIsSubmitting(true)
+    setErrorMessage('')
+
+    try {
+      /**
+       * confirmPasswordReset() : 新しいパスワードをFirebaseに送信して確定
+       *
+       * oobCode（ワンタイムコード）と新しいパスワードを渡して
+       * パスワードをリセットする
+       */
+      await confirmPasswordReset(auth, oobCode, newPassword)
+
+      // パスワードリセット完了
+      setStatus('resetDone')
+    } catch (error) {
+      // Firebase のエラーオブジェクトを型安全に扱う
+      const err = error as FirebaseAuthError
+      const message = getAuthErrorMessage(err)
+      setErrorMessage(message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   // 処理中はローディングスピナーを表示
   if (status === 'loading') {
     return <LoadingSpinner />
   }
 
-  // 成功時の表示
+  // パスワードリセットフォーム
+  if (status === 'resetForm') {
+    return (
+      <div className="auth-action-container">
+        <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
+        <h1 className="auth-action-title">新しいパスワードを設定</h1>
+
+        {/* エラーメッセージ */}
+        {errorMessage && (
+          <div className="auth-action-error">
+            <p>{errorMessage}</p>
+          </div>
+        )}
+
+        {/* パスワードリセットフォーム */}
+        <form onSubmit={handleResetSubmit} className="auth-action-form">
+          {/* 新しいパスワード入力 */}
+          <PasswordInput
+            id="new-password"
+            value={newPassword}
+            onChange={setNewPassword}
+            placeholder="6文字以上"
+            autoComplete="new-password"
+            classPrefix="auth-action"
+            label="新しいパスワード"
+            error={fieldErrors.password}
+          />
+
+          {/* 確認用パスワード入力 */}
+          <PasswordInput
+            id="confirm-password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            placeholder="もう一度入力"
+            autoComplete="new-password"
+            classPrefix="auth-action"
+            label="新しいパスワード（確認）"
+            error={fieldErrors.confirmPassword}
+          />
+
+          {/* 送信ボタン */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="auth-action-button"
+          >
+            {isSubmitting ? '設定中...' : 'パスワードを変更する'}
+          </button>
+        </form>
+      </div>
+    )
+  }
+
+  // パスワードリセット完了
+  if (status === 'resetDone') {
+    return (
+      <div className="auth-action-container">
+        <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
+        <h1 className="auth-action-title">パスワードを変更しました</h1>
+
+        {/* 成功メッセージ */}
+        <div className="auth-action-success">
+          <p>パスワードの変更が完了しました。</p>
+          <p>新しいパスワードでログインしてください。</p>
+        </div>
+
+        {/* ログインページへのボタン */}
+        <Link to="/login" className="auth-action-button">
+          ログインページへ
+        </Link>
+      </div>
+    )
+  }
+
+  // 成功時の表示（メール確認完了）
   if (status === 'success') {
     return (
       <div className="auth-action-container">

@@ -25,6 +25,8 @@ interface PasswordInputProps {
   autoComplete?: string
   /** CSSクラス名のプレフィックス（login, signup など） */
   classPrefix: string
+  /** ラベルテキスト（デフォルト: 'パスワード'） */
+  label?: string
   /** エラーメッセージ（表示する場合） */
   error?: string
 }
@@ -54,6 +56,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   placeholder,
   autoComplete = 'current-password',
   classPrefix,
+  label = 'パスワード',
   error,
 }) => {
   // パスワードの表示/非表示を管理
@@ -62,7 +65,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   return (
     <div className={`${classPrefix}-field`}>
       <label htmlFor={id} className={`${classPrefix}-label`}>
-        パスワード
+        {label}
       </label>
       <div className="password-input-wrapper">
         <input
