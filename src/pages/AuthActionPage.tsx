@@ -98,21 +98,6 @@ const AuthActionPage: React.FC = () => {
     confirmPassword?: string
   }>({})
 
-  /**
-   * メール確認成功後の自動遷移用useEffect
-   *
-   * handleAction内でsetStatus('success')とrefreshUser()が完了した後、
-   * Reactの状態更新が処理されてuser.emailVerifiedがtrueになったタイミングで
-   * メモページに自動遷移する。
-   *
-   * 状態更新の処理完了を確実に待てるため、タイミングの問題が発生しない。
-   */
-  useEffect(() => {
-    if (status === 'success' && user?.emailVerified) {
-      navigate('/', { replace: true })
-    }
-  }, [status, user, navigate])
-
   useEffect(() => {
     /**
      * Firebase Auth の初期化完了を待ってからアクションを実行する
@@ -173,17 +158,23 @@ const AuthActionPage: React.FC = () => {
           await applyActionCode(auth, code)
 
           /**
-           * ユーザーがログイン中の場合は refreshUser() で emailVerified を更新
-           * ログインしていない場合（別ブラウザで開いた等）はスキップ
+           * メール確認成功後の遷移
+           *
+           * window.location.replace() でフルリロード遷移する。
+           * React Router の navigate() ではなくフルリロードを使う理由:
+           *
+           * navigate() → React の状態更新（emailVerified = true）が
+           * 処理される前に ProtectedRoute が描画され、古い状態を参照してしまう。
+           * フルリロードなら Firebase Auth が最初から初期化し直すため、
+           * 最新の emailVerified = true が確実に反映される。
            */
           if (auth.currentUser) {
-            await refreshUser()
+            // ログイン中: メモページへフルリロード遷移
+            window.location.replace('/')
+          } else {
+            // 未ログイン（別ブラウザで開いた等）: 成功ページを表示
+            setStatus('success')
           }
-
-          // 成功ステータスに設定
-          // ログイン中の場合: 上の自動遷移用useEffectがemailVerified=trueを検知してメモページへ遷移
-          // 未ログインの場合: 成功ページを表示してログインを促す
-          setStatus('success')
           return
         } else if (mode === 'resetPassword') {
           /**
