@@ -169,7 +169,12 @@ const AuthActionPage: React.FC = () => {
            * 最新の emailVerified = true が確実に反映される。
            */
           if (auth.currentUser) {
-            // ログイン中: メモページへフルリロード遷移
+            // トークンを強制更新してから遷移する
+            // applyActionCode() でサーバー上の emailVerified は true になるが、
+            // クライアント側の IndexedDB に保存されたトークンはまだ古い（emailVerified = false）。
+            // getIdToken(true) でサーバーから最新のトークンを取得し、
+            // IndexedDB に保存することで、リロード後も emailVerified = true が反映される。
+            await auth.currentUser.getIdToken(true)
             window.location.replace('/')
           } else {
             // 未ログイン（別ブラウザで開いた等）: 成功ページを表示
