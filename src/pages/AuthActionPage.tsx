@@ -165,9 +165,18 @@ const AuthActionPage: React.FC = () => {
            */
           await refreshUser()
 
-          // メモページに遷移（replace: true で /__/auth/action を履歴に残さない）
-          // これにより、スワイプで戻ってもこのページに戻ってこない
-          navigate('/', { replace: true })
+          // 【重要】ここで navigate('/') を呼ばない
+          //
+          // refreshUser() 内の setUser() は React の状態更新をキューに入れるだけで、
+          // この時点ではまだ emailVerified = false のまま。
+          // ここで navigate('/') すると、ProtectedRoute が古い状態（emailVerified = false）を
+          // 参照してしまい、/verify-email にリダイレクトされる。
+          //
+          // 代わりに、refreshUser() による setUser() が処理されると user が変わり、
+          // このuseEffectが再実行される。再実行時には上部の
+          // 「if (mode === 'verifyEmail' && user?.emailVerified)」チェックで
+          // emailVerified = true を検知し、navigate('/') が実行される。
+          // この時点では状態更新が完了しているため、ProtectedRoute も正しく動作する。
           return
         } else if (mode === 'resetPassword') {
           /**
