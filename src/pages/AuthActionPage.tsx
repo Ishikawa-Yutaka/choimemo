@@ -16,7 +16,7 @@
  * - resetPassword  : パスワードのリセット（新しいパスワードを設定）
  */
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import {
@@ -73,11 +73,9 @@ const AuthActionPage: React.FC = () => {
   // 例: ?mode=verifyEmail&oobCode=xxx から mode と oobCode を取得
   const [searchParams] = useSearchParams()
 
-  // AuthContext から認証状態を取得
-  // authLoading: Firebase Auth の初期化が完了したかどうか（true = まだ初期化中）
-  // user: ログイン中のユーザー（初期化完了前は null）
-  // refreshUser: reload() 後に React の State を更新するために使用
-  const { user, loading: authLoading, refreshUser } = useAuth()
+  // AuthContext の refreshUser を取得
+  // reload() 後に React の State を更新するために使用
+  const { user, refreshUser } = useAuth()
 
   // ページ遷移に使用（replace: true で履歴を残さない）
   const navigate = useNavigate()
@@ -87,13 +85,6 @@ const AuthActionPage: React.FC = () => {
 
   // エラーメッセージを管理
   const [errorMessage, setErrorMessage] = useState('')
-
-  // applyActionCode の二重実行を防ぐためのRef
-  // useEffect は依存配列の変化で再実行されるが、
-  // 非同期処理中に再実行されると同じ oobCode で二重呼び出しになる。
-  // Ref は React のレンダリングサイクルに依存しないため、
-  // 即座にフラグを立てて二重実行を確実に防げる。
-  const actionStartedRef = useRef(false)
 
   // --- パスワードリセット用のState ---
   const [oobCode, setOobCode] = useState('')
@@ -106,21 +97,6 @@ const AuthActionPage: React.FC = () => {
   }>({})
 
   useEffect(() => {
-    /**
-     * Firebase Auth の初期化完了を待ってからアクションを実行する
-     *
-     * 【なぜ待つ必要があるか】
-     * ページ読み込み直後は Firebase Auth がまだ初期化中で、
-     * auth.currentUser が null になっている。
-     * この状態で applyActionCode → refreshUser() を実行すると、
-     * refreshUser() 内の auth.currentUser が null のため空振りし、
-     * emailVerified がクライアント側で更新されない。
-     *
-     * authLoading が false になるのを待つことで、
-     * auth.currentUser が確実に利用可能な状態でアクションを実行できる。
-     */
-    if (authLoading) return
-
     /**
      * URLパラメータを取得して処理を実行
      *
@@ -145,12 +121,6 @@ const AuthActionPage: React.FC = () => {
       return
     }
 
-    // 既に処理を開始している場合は再実行しない
-    // Ref を使うことで、React の State 更新タイミングに依存せず
-    // 確実に二重実行を防止する（status は非同期処理中にまだ 'loading' のままの場合がある）
-    if (status !== 'loading' || actionStartedRef.current) return
-    actionStartedRef.current = true
-
     const handleAction = async () => {
       try {
         if (mode === 'verifyEmail') {
@@ -167,28 +137,17 @@ const AuthActionPage: React.FC = () => {
           await applyActionCode(auth, code)
 
           /**
-           * メール確認成功後の遷移
+           * refreshUser() : Firebase から最新情報を取得し React の State も更新
            *
-           * refreshUser() で React の State を直接更新してから
-           * navigate() で SPA 遷移する。
-           *
-           * 【なぜ window.location.replace() ではなく navigate() を使うか】
-           * window.location.replace() はフルリロードとなり、Firebase が
-           * IndexedDB から古い状態（emailVerified: false）でユーザーを復元してしまう。
-           * refreshUser() で React の State を直接更新すれば、
-           * ProtectedRoute が最新の emailVerified: true を参照できる。
-           *
-           * 【refreshUser() の役割】
-           * 1. reload() : Firebase サーバーから最新の emailVerified を取得
-           * 2. setUser() : React の State を更新して再レンダリングをトリガー
+           * applyActionCode() だけでは emailVerified はまだ false のまま。
+           * refreshUser() は reload() + setUser() を行うことで、
+           * ProtectedRoute が emailVerified: true を認識できるようになる。
            */
-          if (auth.currentUser) {
-            await refreshUser()
-            navigate('/', { replace: true })
-          } else {
-            // 未ログイン（別ブラウザで開いた等）: 成功ページを表示
-            setStatus('success')
-          }
+          await refreshUser()
+
+          // メモページに遷移（replace: true で /__/auth/action を履歴に残さない）
+          // これにより、スワイプで戻ってもこのページに戻ってこない
+          navigate('/', { replace: true })
           return
         } else if (mode === 'resetPassword') {
           /**
@@ -222,7 +181,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams, refreshUser, navigate, user, authLoading, status]) // status を追加して二重実行を防止
+  }, [searchParams, refreshUser, navigate, user]) // searchParams, refreshUser, navigate, user が変わった時に実行
 
   /**
    * パスワードリセットフォームの送信処理
@@ -355,23 +314,21 @@ const AuthActionPage: React.FC = () => {
   }
 
   // 成功時の表示（メール確認完了）
-  // ログイン中の場合は自動遷移useEffectによりメモページへ遷移するため、
-  // この画面が表示されるのは未ログイン時（別ブラウザで開いた場合など）のみ
   if (status === 'success') {
     return (
       <div className="auth-action-container">
         <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
-        <h1 className="auth-action-title">メールアドレスを確認しました！</h1>
+        <h1 className="auth-action-title">アカウントが作成されました！</h1>
 
         {/* 成功メッセージ */}
         <div className="auth-action-success">
-          <p>メールアドレスの確認が完了しました。</p>
-          <p>ログインしてちょいMEMOをお使いください。</p>
+          <p>メールアドレスの確認が完了しました</p>
+          <p>ちょいMEMOをお使いいただけます。</p>
         </div>
 
-        {/* ログインページへのボタン */}
-        <Link to="/login" className="auth-action-button">
-          ログインページへ
+        {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
+        <Link to="/" className="auth-action-button">
+          ちょいMEMOを始める
         </Link>
       </div>
     )
