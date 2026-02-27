@@ -16,7 +16,7 @@
  * - resetPassword  : パスワードのリセット（新しいパスワードを設定）
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import {
@@ -88,6 +88,13 @@ const AuthActionPage: React.FC = () => {
   // エラーメッセージを管理
   const [errorMessage, setErrorMessage] = useState('')
 
+  // applyActionCode の二重実行を防ぐためのRef
+  // useEffect は依存配列の変化で再実行されるが、
+  // 非同期処理中に再実行されると同じ oobCode で二重呼び出しになる。
+  // Ref は React のレンダリングサイクルに依存しないため、
+  // 即座にフラグを立てて二重実行を確実に防げる。
+  const actionStartedRef = useRef(false)
+
   // --- パスワードリセット用のState ---
   const [oobCode, setOobCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -138,9 +145,11 @@ const AuthActionPage: React.FC = () => {
       return
     }
 
-    // 既に処理完了している場合は再実行しない
-    // （useEffectが再実行されても、同じoobCodeで二重にapplyActionCodeしない）
-    if (status !== 'loading') return
+    // 既に処理を開始している場合は再実行しない
+    // Ref を使うことで、React の State 更新タイミングに依存せず
+    // 確実に二重実行を防止する（status は非同期処理中にまだ 'loading' のままの場合がある）
+    if (status !== 'loading' || actionStartedRef.current) return
+    actionStartedRef.current = true
 
     const handleAction = async () => {
       try {
@@ -169,11 +178,22 @@ const AuthActionPage: React.FC = () => {
            * 最新の emailVerified = true が確実に反映される。
            */
           if (auth.currentUser) {
-            // トークンを強制更新してから遷移する
-            // applyActionCode() でサーバー上の emailVerified は true になるが、
-            // クライアント側の IndexedDB に保存されたトークンはまだ古い（emailVerified = false）。
-            // getIdToken(true) でサーバーから最新のトークンを取得し、
-            // IndexedDB に保存することで、リロード後も emailVerified = true が反映される。
+            // reload() でサーバーから最新のユーザー情報を取得する。
+            //
+            // 【なぜ reload() が必要か】
+            // applyActionCode() はサーバー上の emailVerified を true にするが、
+            // クライアント側の User オブジェクトと IndexedDB の永続化データは
+            // 自動では更新されない。
+            // reload() を呼ぶことで:
+            // 1. auth.currentUser.emailVerified が true に更新される
+            // 2. IndexedDB に永続化されたユーザー情報も最新になる
+            //
+            // 【getIdToken(true) だけでは不十分な理由】
+            // getIdToken(true) は ID トークン（JWT）を更新するが、
+            // IndexedDB のユーザープロフィール（emailVerified 等）は更新しない。
+            // フルリロード後、Firebase は IndexedDB からユーザーを復元するため、
+            // reload() で IndexedDB のデータを更新しておく必要がある。
+            await auth.currentUser.reload()
             await auth.currentUser.getIdToken(true)
             window.location.replace('/')
           } else {
