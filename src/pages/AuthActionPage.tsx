@@ -98,6 +98,21 @@ const AuthActionPage: React.FC = () => {
     confirmPassword?: string
   }>({})
 
+  /**
+   * メール確認成功後の自動遷移用useEffect
+   *
+   * handleAction内でsetStatus('success')とrefreshUser()が完了した後、
+   * Reactの状態更新が処理されてuser.emailVerifiedがtrueになったタイミングで
+   * メモページに自動遷移する。
+   *
+   * 状態更新の処理完了を確実に待てるため、タイミングの問題が発生しない。
+   */
+  useEffect(() => {
+    if (status === 'success' && user?.emailVerified) {
+      navigate('/', { replace: true })
+    }
+  }, [status, user, navigate])
+
   useEffect(() => {
     /**
      * Firebase Auth の初期化完了を待ってからアクションを実行する
@@ -138,6 +153,10 @@ const AuthActionPage: React.FC = () => {
       return
     }
 
+    // 既に処理完了している場合は再実行しない
+    // （useEffectが再実行されても、同じoobCodeで二重にapplyActionCodeしない）
+    if (status !== 'loading') return
+
     const handleAction = async () => {
       try {
         if (mode === 'verifyEmail') {
@@ -154,29 +173,17 @@ const AuthActionPage: React.FC = () => {
           await applyActionCode(auth, code)
 
           /**
-           * refreshUser() : Firebase から最新情報を取得し React の State も更新
-           *
-           * applyActionCode() だけでは emailVerified はまだ false のまま。
-           * refreshUser() は reload() + setUser() を行うことで、
-           * ProtectedRoute が emailVerified: true を認識できるようになる。
-           *
-           * authLoading 完了を待ってから実行しているため、
-           * auth.currentUser が確実に存在し、空振りしない。
+           * ユーザーがログイン中の場合は refreshUser() で emailVerified を更新
+           * ログインしていない場合（別ブラウザで開いた等）はスキップ
            */
-          await refreshUser()
+          if (auth.currentUser) {
+            await refreshUser()
+          }
 
-          // 【重要】ここで navigate('/') を呼ばない
-          //
-          // refreshUser() 内の setUser() は React の状態更新をキューに入れるだけで、
-          // この時点ではまだ emailVerified = false のまま。
-          // ここで navigate('/') すると、ProtectedRoute が古い状態（emailVerified = false）を
-          // 参照してしまい、/verify-email にリダイレクトされる。
-          //
-          // 代わりに、refreshUser() による setUser() が処理されると user が変わり、
-          // このuseEffectが再実行される。再実行時には上部の
-          // 「if (mode === 'verifyEmail' && user?.emailVerified)」チェックで
-          // emailVerified = true を検知し、navigate('/') が実行される。
-          // この時点では状態更新が完了しているため、ProtectedRoute も正しく動作する。
+          // 成功ステータスに設定
+          // ログイン中の場合: 上の自動遷移用useEffectがemailVerified=trueを検知してメモページへ遷移
+          // 未ログインの場合: 成功ページを表示してログインを促す
+          setStatus('success')
           return
         } else if (mode === 'resetPassword') {
           /**
@@ -210,7 +217,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams, refreshUser, navigate, user, authLoading]) // authLoading を追加して初期化完了時に再実行
+  }, [searchParams, refreshUser, navigate, user, authLoading, status]) // status を追加して二重実行を防止
 
   /**
    * パスワードリセットフォームの送信処理
@@ -343,21 +350,23 @@ const AuthActionPage: React.FC = () => {
   }
 
   // 成功時の表示（メール確認完了）
+  // ログイン中の場合は自動遷移useEffectによりメモページへ遷移するため、
+  // この画面が表示されるのは未ログイン時（別ブラウザで開いた場合など）のみ
   if (status === 'success') {
     return (
       <div className="auth-action-container">
         <img src={logo} alt="ちょいMEMO" className="auth-action-logo" />
-        <h1 className="auth-action-title">アカウントが作成されました！</h1>
+        <h1 className="auth-action-title">メールアドレスを確認しました！</h1>
 
         {/* 成功メッセージ */}
         <div className="auth-action-success">
-          <p>メールアドレスの確認が完了しました</p>
-          <p>ちょいMEMOをお使いいただけます。</p>
+          <p>メールアドレスの確認が完了しました。</p>
+          <p>ログインしてちょいMEMOをお使いください。</p>
         </div>
 
-        {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
-        <Link to="/" className="auth-action-button">
-          ちょいMEMOを始める
+        {/* ログインページへのボタン */}
+        <Link to="/login" className="auth-action-button">
+          ログインページへ
         </Link>
       </div>
     )
