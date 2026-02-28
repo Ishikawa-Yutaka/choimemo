@@ -16,7 +16,7 @@
  * - resetPassword  : パスワードのリセット（新しいパスワードを設定）
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import {
@@ -96,6 +96,12 @@ const AuthActionPage: React.FC = () => {
     confirmPassword?: string
   }>({})
 
+  // applyActionCode の二重実行を防ぐためのRef
+  // useEffect は user の変化で再実行されるが、
+  // 非同期処理中に再実行されると同じ oobCode で二重呼び出しになり
+  // 2回目が「使用済みコード」エラーになる（一瞬エラー画面がちらつく原因）
+  const actionStartedRef = useRef(false)
+
   useEffect(() => {
     /**
      * URLパラメータを取得して処理を実行
@@ -120,6 +126,10 @@ const AuthActionPage: React.FC = () => {
       setErrorMessage('無効なリンクです。')
       return
     }
+
+    // 既に処理を開始している場合は再実行しない
+    if (actionStartedRef.current) return
+    actionStartedRef.current = true
 
     const handleAction = async () => {
       try {
