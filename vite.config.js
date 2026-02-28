@@ -29,6 +29,7 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         icons: [
+          // 通常アイコン（iOS、ブラウザタブなど）
           {
             src: '/icons/icon-192x192.png',
             sizes: '192x192',
@@ -39,11 +40,18 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
           },
+          // Android用アダプティブアイコン（ロゴを中央80%に収め、周囲に余白あり）
           {
-            src: '/icons/icon-512x512.png',
+            src: '/icons/icon-192x192-maskable.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+          {
+            src: '/icons/icon-512x512-maskable.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'maskable',
           },
         ],
       },

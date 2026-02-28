@@ -107,10 +107,10 @@ const EmailVerificationPage: React.FC = () => {
 
       {/* 説明文 */}
       <p className="verify-description">
-        <strong>{user?.email}</strong> に確認メールを送信しました。
+        <strong>{user?.email}</strong> のメール認証が必要です。
       </p>
       <p className="verify-description-last">
-        メール内のリンクをクリックして、アカウント作成を完了してください。
+        確認メール内のリンクをクリックして、アカウント作成を完了してください。
       </p>
 
       {/* 迷惑メール案内 */}
