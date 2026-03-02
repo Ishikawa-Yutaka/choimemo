@@ -59,7 +59,7 @@
   border-radius: 6px;
   background-color: #fffbeb;
   border: 1px solid #fde68a;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   font-size: 13px;
   color: #92400e;
   line-height: 1.7;
@@ -67,7 +67,7 @@
 
 /* 操作結果メッセージ */
 .verify-message {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   padding: 10px 12px;
   border-radius: 4px;
   font-size: 14px;
@@ -85,8 +85,9 @@
 
 /* 再送信ボタン */
 .verify-resend-button {
+  margin-top: 8px;
   width: 100%;
-  padding: 10px 0;
+  padding: 12px 0;
   font-size: 15px;
   font-weight: 600;
   border-radius: 9999px;

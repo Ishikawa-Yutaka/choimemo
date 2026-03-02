@@ -1,0 +1,168 @@
+/**
+ * 再認証モーダルのスタイル
+ *
+ * DeleteProgressOverlay.css のパターン（オーバーレイ + 中央カード）を踏襲
+ */
+
+/* 画面全体を覆うオーバーレイ */
+.reauth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /* 半透明の黒い背景でユーザーの操作をブロック */
+  background-color: rgba(0, 0, 0, 0.7);
+
+  /* 中央にカードを配置 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* メニューやプログレスオーバーレイより手前に表示 */
+  z-index: 2100;
+}
+
+/* 中央のカード */
+.reauth-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 320px;
+  max-width: 88vw;
+  text-align: center;
+
+  /* 影をつけて浮いて見せる */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* フェードインアニメーション */
+  animation: reauthFadeInScale 0.3s ease-out;
+}
+
+/* タイトル */
+.reauth-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 8px 0;
+}
+
+/* 説明テキスト */
+.reauth-description {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+/* パスワード入力フォーム */
+.reauth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* パスワード入力フィールド */
+.reauth-password-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.reauth-password-input:focus {
+  border-color: #63c2c7;
+}
+
+/* エラーメッセージ */
+.reauth-error {
+  font-size: 13px;
+  color: #d32f2f;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border-radius: 8px;
+  text-align: left;
+}
+
+/* 認証ボタン（共通スタイル） */
+.reauth-submit-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.reauth-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* パスワード再認証ボタン */
+.reauth-submit-button-password {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.reauth-submit-button-password:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* Google再認証ボタン */
+.reauth-submit-button-google {
+  background-color: white;
+  color: #333;
+  border: 1.5px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.reauth-submit-button-google:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+/* Googleアイコン */
+.reauth-google-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* キャンセルボタン */
+.reauth-cancel-button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.reauth-cancel-button:hover {
+  color: #555;
+}
+
+/* カードが出現するアニメーション */
+@keyframes reauthFadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -4,9 +4,10 @@
  * - 進捗バーを表示しながらアカウント削除
  * - メモを1件ずつ削除
  * - Firebaseアカウントを削除
+ * - 再認証が必要な場合はモーダルを表示してリトライ
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { deleteUser } from 'firebase/auth'
 import { getMemos, deleteMemo } from '../lib/database'
@@ -26,6 +27,12 @@ interface UseDeleteAccountReturn {
   deleteStatusMessage: string
   /** アカウント削除処理を実行する関数 */
   handleDeleteAccount: () => Promise<void>
+  /** 再認証モーダルの表示が必要かどうか */
+  needsReauth: boolean
+  /** 再認証成功後にアカウント削除をリトライする関数 */
+  handleReauthSuccess: () => Promise<void>
+  /** 再認証をキャンセルした時の処理 */
+  handleReauthCancel: () => void
 }
 
 /**
@@ -36,8 +43,10 @@ interface UseDeleteAccountReturn {
  *
  * 使用例:
  * ```tsx
- * const { deleteProgress, deleteStatusMessage, handleDeleteAccount } =
- *   useDeleteAccount(user)
+ * const {
+ *   deleteProgress, deleteStatusMessage, handleDeleteAccount,
+ *   needsReauth, handleReauthSuccess, handleReauthCancel,
+ * } = useDeleteAccount(user)
  * ```
  */
 export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
@@ -57,6 +66,80 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
   const [deleteStatusMessage, setDeleteStatusMessage] = useState('')
 
   /**
+   * 再認証モーダルの表示が必要かどうかを管理するState
+   *
+   * auth/requires-recent-login エラーが発生した時に true になり、
+   * 再認証モーダルが表示される
+   */
+  const [needsReauth, setNeedsReauth] = useState(false)
+
+  /**
+   * アカウント削除のみを実行する内部関数
+   *
+   * メモ削除は既に完了している可能性があるため、
+   * この関数ではアカウント削除（deleteUser）のみを実行します。
+   * 再認証成功後のリトライ時に使用します。
+   */
+  const deleteAccountOnly = useCallback(async () => {
+    if (!user) return
+
+    try {
+      // プログレスバーを表示（90%からスタート＝メモ削除済み）
+      setDeleteProgress(90)
+      setDeleteStatusMessage('アカウントを削除しています...')
+
+      // Firebaseアカウントを削除
+      await deleteUser(user)
+
+      // 完了（100%）
+      setDeleteProgress(100)
+      setDeleteStatusMessage('削除が完了しました')
+
+      // 少し待ってからリダイレクト（100%を画面で確認できるように）
+      await new Promise(resolve => setTimeout(resolve, 800))
+
+      // ログイン画面にリダイレクト
+      navigate('/login', { replace: true })
+    } catch (error) {
+      console.error('アカウント削除リトライに失敗しました:', error)
+
+      const err = error as FirebaseAuthError
+
+      // エラーが発生したらプログレスバーを非表示に戻す
+      setDeleteProgress(null)
+      setDeleteStatusMessage('')
+
+      // エラーメッセージを表示
+      const message = getAuthErrorMessage(err)
+      alert(message)
+    }
+  }, [user, navigate])
+
+  /**
+   * 再認証成功後にアカウント削除をリトライする関数
+   *
+   * ReauthModal から onSuccess コールバックとして呼ばれます。
+   * 再認証モーダルを閉じてから、アカウント削除のみを実行します。
+   */
+  const handleReauthSuccess = useCallback(async () => {
+    // 再認証モーダルを閉じる
+    setNeedsReauth(false)
+
+    // アカウント削除をリトライ（メモは既に削除済みなのでスキップ）
+    await deleteAccountOnly()
+  }, [deleteAccountOnly])
+
+  /**
+   * 再認証をキャンセルした時の処理
+   *
+   * 再認証モーダルを閉じるだけ。
+   * メモは既に削除されている可能性があるが、アカウント自体は残る。
+   */
+  const handleReauthCancel = useCallback(() => {
+    setNeedsReauth(false)
+  }, [])
+
+  /**
    * アカウント削除処理（クライアント側実装）
    *
    * 処理の流れ:
@@ -66,6 +149,8 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
    * 4. メモを1件ずつ削除しながら進捗を更新（10〜80%）
    * 5. Firebaseアカウントを削除（90%）
    * 6. ログイン画面へリダイレクト（100%）
+   *
+   * ※ auth/requires-recent-login エラーの場合は再認証モーダルを表示
    *
    * 注: 将来的にはCloud Functionsで自動削除する予定
    * 現在はBlazeプランが必要なため、クライアント側で実装
@@ -139,12 +224,10 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
       setDeleteProgress(null)
       setDeleteStatusMessage('')
 
-      // 再認証が必要な場合のエラーハンドリング
-      // この特殊なケースは詳しい説明が必要なので、個別に処理
+      // 再認証が必要な場合 → 再認証モーダルを表示
+      // メモは既に削除済みの可能性があるため、リトライ時はアカウント削除のみ実行
       if (err.code === 'auth/requires-recent-login') {
-        alert(
-          'セキュリティのため、アカウント削除には再ログインが必要です。\n\n一度ログアウトして、再度ログインしてから削除してください。'
-        )
+        setNeedsReauth(true)
       } else {
         // その他のエラーは集約したエラーハンドラーを使用
         const message = getAuthErrorMessage(err)
@@ -157,5 +240,8 @@ export const useDeleteAccount = (user: User | null): UseDeleteAccountReturn => {
     deleteProgress,
     deleteStatusMessage,
     handleDeleteAccount,
+    needsReauth,
+    handleReauthSuccess,
+    handleReauthCancel,
   }
 }

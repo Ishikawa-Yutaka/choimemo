@@ -20,6 +20,7 @@ import FloatingButton from '../components/FloatingButton'
 import Menu from '../components/Menu'
 import MemoList from '../components/MemoList'
 import DeleteProgressOverlay from '../components/DeleteProgressOverlay'
+import ReauthModal from '../components/ReauthModal'
 import NavigationArrows from '../components/NavigationArrows'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { useAuth } from '../contexts/AuthContext'
@@ -80,8 +81,14 @@ const MemoPage: React.FC = () => {
   /**
    * アカウント削除処理を管理するカスタムフック
    */
-  const { deleteProgress, deleteStatusMessage, handleDeleteAccount } =
-    useDeleteAccount(user)
+  const {
+    deleteProgress,
+    deleteStatusMessage,
+    handleDeleteAccount,
+    needsReauth,
+    handleReauthSuccess,
+    handleReauthCancel,
+  } = useDeleteAccount(user)
 
   /**
    * メモ操作のカスタムフック
@@ -321,6 +328,16 @@ const MemoPage: React.FC = () => {
         <DeleteProgressOverlay
           progress={deleteProgress}
           message={deleteStatusMessage}
+        />
+      )}
+
+      {/* 再認証モーダル（needsReauthがtrueの時のみ表示） */}
+      {/* auth/requires-recent-login エラー時にパスワード or Google再認証を促す */}
+      {needsReauth && user && (
+        <ReauthModal
+          user={user}
+          onSuccess={handleReauthSuccess}
+          onCancel={handleReauthCancel}
         />
       )}
     </div>
