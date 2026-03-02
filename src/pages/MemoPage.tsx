@@ -243,6 +243,33 @@ const MemoPage: React.FC = () => {
     deleteMemoByIndex(currentIndex)
   }, [deleteMemoByIndex, currentIndex])
 
+  // アカウント削除中はプログレスオーバーレイを表示
+  // メモが全件削除された後に currentMemo が undefined になるため、
+  // 通常の早期リターン（LoadingSpinner）より先にチェックする必要がある
+  if (deleteProgress !== null) {
+    return (
+      <div className="app">
+        <DeleteProgressOverlay
+          progress={deleteProgress}
+          message={deleteStatusMessage}
+        />
+      </div>
+    )
+  }
+
+  // 再認証モーダル表示中（メモ削除後にdeleteUserが失敗した場合）
+  if (needsReauth && user) {
+    return (
+      <div className="app">
+        <ReauthModal
+          user={user}
+          onSuccess={handleReauthSuccess}
+          onCancel={handleReauthCancel}
+        />
+      </div>
+    )
+  }
+
   // データ読み込み中はローディングスピナーを表示
   if (loading) {
     return <LoadingSpinner />
@@ -322,24 +349,6 @@ const MemoPage: React.FC = () => {
         />
       )}
 
-      {/* アカウント削除中のプログレスオーバーレイ */}
-      {/* deleteProgressがnullでない時（削除中）のみ表示 */}
-      {deleteProgress !== null && (
-        <DeleteProgressOverlay
-          progress={deleteProgress}
-          message={deleteStatusMessage}
-        />
-      )}
-
-      {/* 再認証モーダル（needsReauthがtrueの時のみ表示） */}
-      {/* auth/requires-recent-login エラー時にパスワード or Google再認証を促す */}
-      {needsReauth && user && (
-        <ReauthModal
-          user={user}
-          onSuccess={handleReauthSuccess}
-          onCancel={handleReauthCancel}
-        />
-      )}
     </div>
   )
 }
