@@ -73,9 +73,10 @@ const AuthActionPage: React.FC = () => {
   // 例: ?mode=verifyEmail&oobCode=xxx から mode と oobCode を取得
   const [searchParams] = useSearchParams()
 
-  // AuthContext の refreshUser を取得
-  // reload() 後に React の State を更新するために使用
-  const { user, refreshUser } = useAuth()
+  // AuthContext から認証状態を取得
+  // loading: Firebase が IndexedDB から認証情報を復元中かどうか
+  // refreshUser: reload() 後に React の State を更新するために使用
+  const { user, loading: authLoading, refreshUser } = useAuth()
 
   // ページ遷移に使用（replace: true で履歴を残さない）
   const navigate = useNavigate()
@@ -103,6 +104,11 @@ const AuthActionPage: React.FC = () => {
   const actionStartedRef = useRef(false)
 
   useEffect(() => {
+    // 認証状態の復元が完了するまで待つ
+    // Firebase が IndexedDB からログイン情報を読み込む前にアクションを実行すると、
+    // auth.currentUser が null のままになり、メモページへの遷移が失敗する
+    if (authLoading) return
+
     /**
      * URLパラメータを取得して処理を実行
      *
@@ -146,18 +152,26 @@ const AuthActionPage: React.FC = () => {
            */
           await applyActionCode(auth, code)
 
-          /**
-           * refreshUser() : Firebase から最新情報を取得し React の State も更新
-           *
-           * applyActionCode() だけでは emailVerified はまだ false のまま。
-           * refreshUser() は reload() + setUser() を行うことで、
-           * ProtectedRoute が emailVerified: true を認識できるようになる。
-           */
-          await refreshUser()
+          // ログイン中の場合: refreshUser で emailVerified を更新してメモページへ遷移
+          if (auth.currentUser) {
+            /**
+             * refreshUser() : Firebase から最新情報を取得し React の State も更新
+             *
+             * applyActionCode() だけでは emailVerified はまだ false のまま。
+             * refreshUser() は reload() + setUser() を行うことで、
+             * ProtectedRoute が emailVerified: true を認識できるようになる。
+             */
+            await refreshUser()
 
-          // メモページに遷移（replace: true で /__/auth/action を履歴に残さない）
-          // これにより、スワイプで戻ってもこのページに戻ってこない
-          navigate('/', { replace: true })
+            // メモページに遷移（replace: true で /__/auth/action を履歴に残さない）
+            // これにより、スワイプで戻ってもこのページに戻ってこない
+            navigate('/', { replace: true })
+            return
+          }
+
+          // 未ログイン状態（メールアプリ内ブラウザ等で開かれた場合）:
+          // 成功画面を表示してログインページへ誘導
+          setStatus('success')
           return
         } else if (mode === 'resetPassword') {
           /**
@@ -191,7 +205,7 @@ const AuthActionPage: React.FC = () => {
     }
 
     handleAction()
-  }, [searchParams, refreshUser, navigate, user]) // searchParams, refreshUser, navigate, user が変わった時に実行
+  }, [searchParams, refreshUser, navigate, user, authLoading]) // authLoading が false になってから実行
 
   /**
    * パスワードリセットフォームの送信処理
@@ -336,9 +350,11 @@ const AuthActionPage: React.FC = () => {
           <p>ちょいMEMOをお使いいただけます。</p>
         </div>
 
-        {/* メモページへのボタン（メール確認済みなのでそのまま遷移できる） */}
-        <Link to="/" className="auth-action-button">
-          ちょいMEMOを始める
+        {/* ログインページへのボタン */}
+        {/* この画面が表示されるのは未ログイン時（メールアプリ内ブラウザ等）のみ */}
+        {/* ログイン中はメモページへ直接遷移するためこの画面は表示されない */}
+        <Link to="/login" className="auth-action-button">
+          ログインしてはじめる
         </Link>
       </div>
     )
