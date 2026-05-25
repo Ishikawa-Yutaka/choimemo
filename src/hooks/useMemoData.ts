@@ -139,7 +139,7 @@ export const useMemoData = ({
         // サーバー側の updated_at はまだ古いままなので、
         // 「ローカルの方が新しい = 編集中」と判断し、ローカルの内容を維持する。
         setMemos(prevMemos => {
-          return fetchedMemos.map(serverMemo => {
+          const newMemos = fetchedMemos.map(serverMemo => {
             const localMemo = prevMemos.find(m => m.id === serverMemo.id)
 
             if (localMemo) {
@@ -160,6 +160,17 @@ export const useMemoData = ({
             // それ以外はサーバーのデータで更新（別デバイスからの変更など）
             return serverMemo
           })
+
+          // 全要素が同じ参照なら、元の配列をそのまま返す
+          // → Reactが「変更なし」と判断し、再レンダリングをスキップする
+          if (
+            newMemos.length === prevMemos.length &&
+            newMemos.every((memo, i) => memo === prevMemos[i])
+          ) {
+            return prevMemos
+          }
+
+          return newMemos
         })
       },
       (error) => {

@@ -70,6 +70,22 @@ export const useMemoEditing = ({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   /**
+   * memos と currentIndex を useRef で保持
+   *
+   * useRef を使う理由:
+   * - handleMemoChange の useCallback 依存配列から memos と currentIndex を外すため
+   * - 依存配列に memos が入っていると、onSnapshot のたびに handleMemoChange が再作成され、
+   *   MemoEditor の onChange プロップが変わり、React.memo が効かず再レンダリングが発生し、
+   *   カーソル位置がリセットされてしまう
+   * - useRef なら値が変わっても関数は再作成されず、.current で常に最新の値を参照できる
+   */
+  const memosRef = useRef(memos)
+  memosRef.current = memos
+
+  const currentIndexRef = useRef(currentIndex)
+  currentIndexRef.current = currentIndex
+
+  /**
    * コンポーネントがアンマウントされる時に、
    * デバウンスタイマーをクリーンアップ
    *
@@ -92,6 +108,10 @@ export const useMemoEditing = ({
    * 同じ関数参照を返します。これにより、この関数を props として受け取る
    * コンポーネント（MemoEditor など）の不要な再レンダリングを防ぎます。
    *
+   * memos と currentIndex は useRef 経由で参照するため、依存配列に含めない。
+   * これにより onSnapshot でメモが更新されても handleMemoChange は再作成されず、
+   * MemoEditor の不要な再レンダリング（カーソル飛び）を防ぐ。
+   *
    * @param newContent - 新しいメモの内容
    *
    * 処理の流れ:
@@ -104,14 +124,16 @@ export const useMemoEditing = ({
     (newContent: string) => {
       if (!userId) return
 
-      const currentMemo = memos[currentIndex]
+      // useRef から最新の値を取得
+      const idx = currentIndexRef.current
+      const currentMemo = memosRef.current[idx]
       if (!currentMemo) return
 
       // 1. まず画面表示を即座に更新（ローカルState）
       // これにより、ユーザーの入力がすぐに画面に反映される
       setMemos(prevMemos =>
         prevMemos.map((memo, index) =>
-          index === currentIndex
+          index === idx
             ? { ...memo, content: newContent, updated_at: new Date() }
             : memo
         )
@@ -137,7 +159,7 @@ export const useMemoEditing = ({
         }
       }, 500) // 500ms（0.5秒）のデバウンス
     },
-    [userId, memos, currentIndex, setMemos]
+    [userId, setMemos]
   )
 
   return {
