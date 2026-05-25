@@ -138,13 +138,17 @@ export function subscribeToMemos(
           content: data.content,
           imageUrls: data.imageUrls,
           // serverTimestamp() がまだサーバーで確定していない場合、
-          // Timestampがnullになる可能性があるため、fallbackに new Date() を使用
+          // Timestampがnullになる可能性があるため、フォールバックを使用
           created_at: data.created_at
             ? convertTimestampToDate(data.created_at)
             : new Date(),
+          // updated_at のフォールバックには new Date(0)（1970年）を使用
+          // new Date()（現在時刻）だと、ローカルの updated_at より新しくなり、
+          // useMemoData の競合回避ロジックで誤ってサーバー側が勝ってしまう
+          // → 編集中のメモが上書きされてカーソルが飛ぶ問題が発生する
           updated_at: data.updated_at
             ? convertTimestampToDate(data.updated_at)
-            : new Date(),
+            : new Date(0),
         }
       })
 

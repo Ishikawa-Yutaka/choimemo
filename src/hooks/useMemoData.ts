@@ -142,13 +142,22 @@ export const useMemoData = ({
           return fetchedMemos.map(serverMemo => {
             const localMemo = prevMemos.find(m => m.id === serverMemo.id)
 
-            // ローカルの updated_at がサーバーより新しい場合、
-            // ユーザーが編集中（デバウンス未完了）と判断してローカルを維持
-            if (localMemo && localMemo.updated_at > serverMemo.updated_at) {
-              return localMemo
+            if (localMemo) {
+              // ローカルの updated_at がサーバーより新しい場合、
+              // ユーザーが編集中（デバウンス未完了）と判断してローカルを維持
+              if (localMemo.updated_at > serverMemo.updated_at) {
+                return localMemo
+              }
+
+              // contentが同じ場合はローカルのオブジェクトをそのまま返す
+              // （オブジェクト参照を維持して不要な再レンダリングを防止し、
+              //  カーソル位置がリセットされるのを防ぐ）
+              if (localMemo.content === serverMemo.content) {
+                return localMemo
+              }
             }
 
-            // それ以外はサーバーのデータで更新
+            // それ以外はサーバーのデータで更新（別デバイスからの変更など）
             return serverMemo
           })
         })
