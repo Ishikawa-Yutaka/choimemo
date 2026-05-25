@@ -298,8 +298,12 @@ const MemoPage: React.FC = () => {
       <Header onDelete={handleDeleteCurrentMemo} onMenuClick={handleMenuClick} />
 
       {/* メモエディター */}
+      {/* key={currentMemo.id} でメモ切り替え時にコンポーネントを再マウント */}
+      {/* MemoEditor は非制御コンポーネント（defaultValue）のため、 */}
+      {/* key が変わることで新しいメモの内容で初期化される */}
       <div className="memo-container">
         <MemoEditor
+          key={currentMemo.id}
           content={currentMemo.content}
           date={currentDate}
           onChange={handleMemoChange}
