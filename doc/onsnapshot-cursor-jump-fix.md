@@ -168,6 +168,67 @@ const handleMemoChange = useCallback(
 - `useCallback` の依存配列に入れる必要がないため、関数が再作成されない
 - 結果として MemoEditor の `onChange` プロップが安定し、React.memo が効く
 
+### 修正4: `src/components/MemoEditor.tsx` + `src/pages/MemoPage.tsx`（非制御コンポーネント化）
+
+修正1〜3でもカーソル飛びが完全には解消されなかったため、根本的な対策として textarea を**非制御コンポーネント**に変更した。
+
+**制御コンポーネント vs 非制御コンポーネント:**
+
+```
+【制御コンポーネント（修正前）】
+<textarea value={content} />
+→ React が毎回のレンダリングで textarea の値を設定する
+→ 再レンダリングのたびに値が上書きされ、カーソル位置がリセットされる可能性がある
+
+【非制御コンポーネント（修正後）】
+<textarea defaultValue={content} />
+→ React はマウント時（最初の表示時）に一度だけ値を設定する
+→ その後は再レンダリングが何回起きても textarea の値に触らない
+→ カーソル位置が絶対に飛ばない
+```
+
+**MemoEditor.tsx の変更:**
+
+```tsx
+// 修正前
+<textarea
+  value={content}           // ← 毎回 React が値を上書き
+  onChange={handleChange}
+/>
+
+// 修正後
+<textarea
+  defaultValue={content}    // ← マウント時に一度だけ設定
+  onChange={handleChange}
+/>
+```
+
+**MemoPage.tsx の変更（key の追加）:**
+
+`defaultValue` はマウント時に一度しか効かないため、スワイプでメモを切り替えたとき、textarea の中身が古いままになる問題がある。これを `key` で解決:
+
+```tsx
+// 修正前
+<MemoEditor
+  content={currentMemo.content}
+  date={currentDate}
+  onChange={handleMemoChange}
+/>
+
+// 修正後
+<MemoEditor
+  key={currentMemo.id}           // ← メモIDが変わるとコンポーネントを破棄して作り直す
+  content={currentMemo.content}
+  date={currentDate}
+  onChange={handleMemoChange}
+/>
+```
+
+**なぜ key で解決できる?**
+- React は `key` が変わると、そのコンポーネントをアンマウント（破棄）して新しく作り直す
+- 新しくマウントされるとき `defaultValue` が効いて、新しいメモの内容で初期化される
+- 同じメモを編集中は `key` が変わらないため、コンポーネントは破棄されず、カーソル位置も維持される
+
 ## 学んだこと
 
 ### 1. `serverTimestamp()` と `onSnapshot` の挙動
@@ -201,3 +262,17 @@ const handleMemoChange = useCallback(
 - `[a, b, c]` と `[a, b, c]` は中身が同じでも**別の配列オブジェクト**なので `Object.is()` は `false`
 - `map()` や `filter()` は常に新しい配列を返すため、中身が同じでも React は「変更あり」と判断する
 - 元の配列をそのまま `return prevState` すれば、React は「変更なし」と判断して再レンダリングをスキップする
+
+### 6. 制御コンポーネント vs 非制御コンポーネント
+
+- **制御コンポーネント** (`value`): React が毎回値を管理する。入力のバリデーションなど厳密な制御が必要な場合に使う
+- **非制御コンポーネント** (`defaultValue`): 初期値だけ設定し、あとはブラウザに任せる。フォームの自由入力に向いている
+- 制御コンポーネントは再レンダリングのたびに値を設定するため、カーソル位置が飛ぶリスクがある
+- 非制御コンポーネントは React が値に触らないため、カーソル位置の問題が起きない
+
+### 7. React の key プロップの活用
+
+- `key` が変わると React はコンポーネントをアンマウント（破棄）して新しく作り直す
+- これを利用して「別のデータに切り替えたらコンポーネントをリセットする」パターンが使える
+- 例: `<MemoEditor key={memoId} />` → メモが変わるとエディタを作り直す
+- `defaultValue` と `key` を組み合わせると、初期値の再設定とカーソル保持を両立できる
