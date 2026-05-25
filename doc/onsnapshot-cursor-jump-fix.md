@@ -95,6 +95,79 @@ return serverMemo
 - オブジェクト参照が変わると React が再レンダリングしてカーソルが飛ぶ
 - 同じオブジェクト参照を返せば再レンダリングが起きず、カーソル位置が維持される
 
+**配列全体の参照も維持する:**
+
+修正1・2だけでは不十分だった。個々のメモのオブジェクト参照を維持しても、`fetchedMemos.map(...)` で**新しい配列**が作られるため、`memos` state が更新され再レンダリングが発生していた。
+
+```typescript
+// 全要素が同じ参照なら、元の配列をそのまま返す
+// → React が「変更なし」と判断し、再レンダリングをスキップする
+if (
+  newMemos.length === prevMemos.length &&
+  newMemos.every((memo, i) => memo === prevMemos[i])
+) {
+  return prevMemos  // ← 元の配列をそのまま返す
+}
+return newMemos
+```
+
+**なぜ配列の参照が重要?**
+- `setMemos` の中で新しい配列を返すと、React は「state が変わった」と判断して再レンダリングする
+- 元の配列（`prevMemos`）をそのまま返すと、React は `Object.is()` で「同じ」と判断して再レンダリングをスキップする
+- 個々の要素が同じでも、配列自体が新しいオブジェクトなら React は変更ありと判断してしまう
+
+### 修正3: `src/hooks/useMemoEditing.ts`（useRef で依存配列を最適化）
+
+`handleMemoChange` の `useCallback` 依存配列に `memos` が入っていたことが、カーソル飛びのもう一つの原因だった:
+
+```typescript
+// 修正前（カーソル飛びあり）
+const handleMemoChange = useCallback(
+  (newContent: string) => {
+    const currentMemo = memos[currentIndex]  // ← memos を直接参照
+    // ...
+  },
+  [userId, memos, currentIndex, setMemos]    // ← memos が依存配列に入っている
+)
+```
+
+**問題の流れ:**
+```
+1. onSnapshot 発火 → setMemos で memos が更新される
+2. memos が変わった → handleMemoChange が新しい関数として再作成される
+3. MemoEditor の onChange プロップが新しい関数になる
+4. React.memo が「onChange が変わった」と判断 → MemoEditor を再レンダリング
+5. textarea の value が再設定される → カーソルが文末に飛ぶ
+```
+
+**修正: useRef で最新の値を参照する**
+
+```typescript
+// useRef で最新の memos と currentIndex を保持する
+// （値が変わっても再レンダリングは起きない）
+const memosRef = useRef(memos)
+memosRef.current = memos  // 毎回のレンダリングで最新の値を入れる
+
+const currentIndexRef = useRef(currentIndex)
+currentIndexRef.current = currentIndex
+
+const handleMemoChange = useCallback(
+  (newContent: string) => {
+    // memos ではなく memosRef.current で参照
+    const idx = currentIndexRef.current
+    const currentMemo = memosRef.current[idx]
+    // ...
+  },
+  [userId, setMemos]  // ← memos と currentIndex が不要になった！
+)
+```
+
+**なぜ useRef ?**
+- `useRef` は値が変わっても再レンダリングを起こさない（`useState` との違い）
+- `.current` プロパティで常に最新の値にアクセスできる
+- `useCallback` の依存配列に入れる必要がないため、関数が再作成されない
+- 結果として MemoEditor の `onChange` プロップが安定し、React.memo が効く
+
 ## 学んだこと
 
 ### 1. `serverTimestamp()` と `onSnapshot` の挙動
@@ -114,3 +187,17 @@ return serverMemo
 - デバウンスで保存 → onSnapshot で通知 → ローカル State 更新、という流れで競合が起きやすい
 - 「ローカルが編集中かどうか」を正しく判定する仕組みが必要
 - 時刻比較だけでなく、content の一致も判定に使うとより安全
+
+### 4. useRef と useState の使い分け
+
+- **useState**: 値が変わったら画面を更新したいとき（例: メモの内容、ローディング状態）
+- **useRef**: 値を参照したいだけで、画面の更新は不要なとき（例: タイマーID、最新の配列への参照）
+- `useCallback` の依存配列に `useState` の値を入れると、値が変わるたびに関数が再作成される
+- `useRef` なら依存配列に入れる必要がなく、関数の再作成を防げる
+
+### 5. React の配列比較（Object.is）
+
+- React の `setState` は `Object.is()` で新旧の値を比較する
+- `[a, b, c]` と `[a, b, c]` は中身が同じでも**別の配列オブジェクト**なので `Object.is()` は `false`
+- `map()` や `filter()` は常に新しい配列を返すため、中身が同じでも React は「変更あり」と判断する
+- 元の配列をそのまま `return prevState` すれば、React は「変更なし」と判断して再レンダリングをスキップする
